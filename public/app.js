@@ -862,6 +862,9 @@ async function loadVideo(url) {
         let initialServer = data.streams.length > 0 ? data.streams[0].server : ''; let initQualMatch = initialServer.match(/\d{3,4}p/i); let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
 
         document.getElementById('watch-view').innerHTML = `
+<<<<<<< HEAD
+            <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
+=======
             <div class="video-container-fixed" onclick="togglePlayerUI()">
             <button class="watch-back-btn" onclick="event.stopPropagation(); backToDetail()" style="z-index: 20;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -905,6 +908,7 @@ async function loadVideo(url) {
     </div>
 </div>
 
+>>>>>>> 36cb18e (Initial commit animeku-test)
             <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;"><img src="${getHighRes(window.currentPlayingAnime.image)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">Episode ${currentEpNum} • <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} • ${mockDate}</div></div></div>
             <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;"><div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;"><div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;"><button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button></div><button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button><button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div></div>
             <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
@@ -1333,30 +1337,56 @@ function renderJadwalDays(activeDay) {
 }
 
 async function loadJadwalData(dayIndex) {
-    const container = document.getElementById('sched-list-container'); 
-    if (!window.cachedScheduleData) { loader(true); }
+    const container = document.getElementById('sched-list-container');
+    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Sinkronisasi Jadwal...</div></div>';
+
+    const hariEnglish = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'shaturday']; // Sesuaikan dengan format API kamu
+    const queryHari = hariEnglish[dayIndex];
 
     try {
-        let data;
-        if (window.cachedScheduleData) { data = window.cachedScheduleData; } 
-        else { const res = await fetchTimeout(`${API_BASE}/latest`, 10000); data = await res.json(); if(!data || data.length === 0) throw new Error("No data"); window.cachedScheduleData = data; }
+        // Kita gunakan API search/schedule jika tersedia, atau fetch berdasarkan kategori hari
+        const res = await fetchTimeout(`${API_BASE}/search?q=${queryHari}`, 10000);
+        let data = await res.json();
 
-        let pseudoRandom = (seed) => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
-        let todaysAnime = data.filter((_, idx) => pseudoRandom(dayIndex * 10 + idx) > 0.4);
-        todaysAnime.forEach((anime, idx) => { let jam = Math.floor(pseudoRandom(dayIndex * 20 + idx) * 24); let menit = Math.floor(pseudoRandom(dayIndex * 30 + idx) * 60); anime.releaseTime = `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}`; anime.releaseHour = jam; });
-        todaysAnime.sort((a, b) => b.releaseHour - a.releaseHour); 
+        if(!data || data.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal tontonan untuk hari ${NAMA_HARI_FULL[dayIndex]}.</div>`;
+            return;
+        }
 
-        let html = ''; let currentHour = new Date().getHours(); let isToday = dayIndex === new Date().getDay();
-        todaysAnime.forEach((anime, idx) => {
-            let isReleased = isToday ? (anime.releaseHour <= currentHour) : (dayIndex < new Date().getDay());
-            let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
-            let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
-            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
+        // Urutkan data (Optional: misalnya berdasarkan rating tertinggi)
+        data.sort((a, b) => (parseFloat(b.score || 0) - parseFloat(a.score || 0)));
+
+        let html = '';
+        data.forEach((anime) => {
+            // Gunakan gambar poster asli (bukan thumbnail episode)
+            // Biasanya gambar poster tidak memiliki teks "Episode" di pojokannya
+            let posterImg = getHighRes(anime.image); 
+            let epBadge = getEpBadge(anime) || "Ongoing";
+            let score = anime.score || anime.rating || "?.??";
+            
+            // Karena API statis biasanya tidak kasih jam rilis, kita buat jam rilis tetap/prediksi 
+            // agar tampilan tetap rapi ala jadwal TV
+            let fixedTime = anime.time || "20:00"; 
+
+            html += `
+            <div class="sched-card" onclick="loadDetail('${anime.url}')">
+                <div class="sched-time">${fixedTime}</div>
+                <img src="${posterImg}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Poster'">
+                <div class="sched-info">
+                    <div class="sched-title">${anime.title}</div>
+                    <div class="sched-ep">${epBadge}</div>
+                    <div class="sched-stats">
+                        <span style="color:#fbbf24;">⭐ ${score}</span>
+                        <span style="margin-left:8px; color:#10b981;">• Update Rilis</span>
+                    </div>
+                    <div class="sched-status"><span class="status-done">Tersedia di Animeku</span></div>
+                </div>
+            </div>`;
         });
-        if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
         container.innerHTML = html;
-    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Server sedang sibuk.</div>`; }
-    loader(false);
+    } catch(e) {
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal hari ${NAMA_HARI_FULL[dayIndex]}.</div>`;
+    }
 }
 
 function showUpdateNotification(updates) {
@@ -2149,6 +2179,8 @@ document.onkeydown = function(e) {
     if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Blokir Ctrl+U (View Source)
 };
 
+<<<<<<< HEAD
+=======
 // ==========================================
 // LOGIKA CUSTOM VIDEO CONTROLS
 // ==========================================
@@ -2196,4 +2228,5 @@ window.togglePlay = function() {
     window.showToast('Fitur Play/Pause tidak mendukung server Iframe.', 'error');
 };
 
+>>>>>>> 36cb18e (Initial commit animeku-test)
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
