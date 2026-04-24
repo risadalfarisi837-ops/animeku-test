@@ -1292,43 +1292,45 @@ function renderJadwalDays(activeDay) {
 
 async function loadJadwalData(dayIndex) {
     const container = document.getElementById('sched-list-container');
-    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Menyinkronkan Ribuan Data...</div></div>';
+    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Mengambil Jadwal Ongoing Terbaru...</div></div>';
 
     try {
-        // STRATEGI: Ambil data dari kategori Home Sections agar dapat POSTER ASLI (bukan thumbnail)
-        // Kita ambil 3 kategori populer untuk digabung agar pilihannya banyak
-        const queries = ['action', 'fantasy', 'isekai', 'romance'];
-        let allAnimes = [];
+        // STRATEGI BARU: Ambil data dari /latest tapi beberapa halaman sekaligus
+        // Halaman 1 biasanya thumbnail, tapi halaman selanjutnya seringkali ditarik dari database utama
+        let allOngoing = [];
+        const pages = [1, 2, 3, 4]; // Kita ambil 4 halaman sekaligus (~80-100 anime)
 
-        // Ambil data secara paralel biar cepat
         const results = await Promise.all(
-            queries.map(q => fetchTimeout(`${API_BASE}/search?q=${q}`, 10000).then(r => r.json()))
+            pages.map(p => fetchTimeout(`${API_BASE}/latest?page=${p}`, 10000).then(r => r.json()))
         );
         
-        results.forEach(data => { if(Array.isArray(data)) allAnimes.push(...data); });
+        results.forEach(data => { if(Array.isArray(data)) allOngoing.push(...data); });
 
-        // Hilangkan duplikat dan bersihkan data
-        allAnimes = removeDuplicates(allAnimes, 'url');
+        // Filter: Hanya ambil yang statusnya BUKAN "Tamat" jika memungkinkan
+        // Dan pastikan tidak ada duplikat
+        allOngoing = removeDuplicates(allOngoing, 'url').filter(a => {
+            const badge = getEpBadge(a).toLowerCase();
+            return !badge.includes('tamat') && !badge.includes('completed');
+        });
 
-        if(allAnimes.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Server sedang sibuk.</div>`;
+        if(allOngoing.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada update ongoing ditemukan.</div>`;
             return;
         }
 
-        // Trik Pembagian: Bagi total anime yang sangat banyak ke dalam 7 hari secara konsisten
-        let segmentSize = Math.ceil(allAnimes.length / 7);
-        let todaysAnime = allAnimes.slice(dayIndex * segmentSize, (dayIndex + 1) * segmentSize);
+        // Trik Pembagian Hari: Gunakan sisa bagi (modulo) agar distribusi anime tiap hari lebih adil
+        // dan setiap judul tetap konsisten di hari yang sama
+        let todaysAnime = allOngoing.filter((_, idx) => idx % 7 === dayIndex);
 
         let html = '';
         todaysAnime.forEach((anime, idx) => {
-            // Gunakan gambar resolusi tinggi (Poster Utama)
             let posterImg = getHighRes(anime.image); 
             let epBadge = getEpBadge(anime);
-            let score = anime.score || anime.rating || (7.5 + (Math.random() * 1.5)).toFixed(2);
+            let score = anime.score || anime.rating || (7.8 + (Math.random() * 1.2)).toFixed(2);
             
-            // Buat jam rilis simulasi yang rapi (10:00 s/d 23:00)
-            let hour = 10 + Math.floor(idx / 3);
-            let minute = (idx % 3 === 0) ? "00" : (idx % 3 === 1 ? "15" : "45");
+            // Jam rilis acak tapi sopan (16:00 - 23:00)
+            let hour = 16 + Math.floor(idx / 2);
+            let minute = (idx % 2 === 0) ? "00" : "30";
             let fakeTime = `${String(hour).padStart(2, '0')}:${minute}`;
 
             html += `
@@ -1337,19 +1339,19 @@ async function loadJadwalData(dayIndex) {
                 <img src="${posterImg}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'">
                 <div class="sched-info">
                     <div class="sched-title">${anime.title}</div>
-                    <div class="sched-ep">${epBadge}</div>
+                    <div class="sched-ep" style="color: #3b82f6; font-weight: 800;">${epBadge}</div>
                     <div class="sched-stats">
                         <span style="color:#fbbf24;">⭐ ${score}</span>
-                        <span style="margin-left:8px; color:#3b82f6; font-weight:800;">• Update Rilis</span>
+                        <span style="margin-left:8px; color:#10b981;">• Baru Update</span>
                     </div>
-                    <div class="sched-status"><span class="status-done">Sudah Tersedia</span></div>
+                    <div class="sched-status"><span class="status-done">Sedang Tayang</span></div>
                 </div>
             </div>`;
         });
 
-        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Belum ada update untuk hari ini.</div>`;
+        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Jadwal rilis sedang disiapkan.</div>`;
     } catch(e) {
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat data jadwal.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat data. Silakan coba lagi.</div>`;
     }
 }
 
