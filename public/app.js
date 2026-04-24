@@ -442,7 +442,22 @@ window.renderDetailEpisodeUI = function() {
     }
 };
 
-function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
+function getHighRes(url) { 
+    if(!url) return ''; 
+    try { 
+        // TRIK: Mengubah folder thumbnail menjadi folder poster secara otomatis
+        // Banyak API anime menggunakan struktur folder yang sama antara thumb dan poster
+        let posterUrl = url.replace('/thumbs/', '/posters/')
+                           .replace('-thumb.jpg', '.jpg')
+                           .replace('-thumb.png', '.png');
+                           
+        // Jika sudah versi Google/Blogger, ambil resolusi tertinggi
+        return posterUrl.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/')
+                        .replace(/=s\d+/g, '=s0'); 
+    } catch(e) { 
+        return url; 
+    } 
+}
 function removeDuplicates(array, key) { const seen = new Set(); return array.filter(item => { if (!item || !item[key]) return false; if (seen.has(item[key])) return false; seen.add(item[key]); return true; }); }
 function getEpBadge(anime) { 
     if (!anime) return 'Anime'; let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
