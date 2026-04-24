@@ -1292,35 +1292,44 @@ function renderJadwalDays(activeDay) {
 
 async function loadJadwalData(dayIndex) {
     const container = document.getElementById('sched-list-container');
-    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Menyaring Jadwal...</div></div>';
+    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Menyinkronkan Ribuan Data...</div></div>';
 
     try {
-        // Kita ambil data dari /latest karena API ini yang paling stabil di webmu
-        const res = await fetchTimeout(`${API_BASE}/latest`, 10000);
-        const data = await res.json();
+        // STRATEGI: Ambil data dari kategori Home Sections agar dapat POSTER ASLI (bukan thumbnail)
+        // Kita ambil 3 kategori populer untuk digabung agar pilihannya banyak
+        const queries = ['action', 'fantasy', 'isekai', 'romance'];
+        let allAnimes = [];
 
-        if(!data || data.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Gagal sinkronisasi data server.</div>`;
+        // Ambil data secara paralel biar cepat
+        const results = await Promise.all(
+            queries.map(q => fetchTimeout(`${API_BASE}/search?q=${q}`, 10000).then(r => r.json()))
+        );
+        
+        results.forEach(data => { if(Array.isArray(data)) allAnimes.push(...data); });
+
+        // Hilangkan duplikat dan bersihkan data
+        allAnimes = removeDuplicates(allAnimes, 'url');
+
+        if(allAnimes.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Server sedang sibuk.</div>`;
             return;
         }
 
-        // Trik Logika: Kita bagi data latest menjadi 7 bagian untuk mengisi 7 hari
-        // Ini memastikan setiap hari punya isi anime yang berbeda dan konsisten
-        let segmentSize = Math.floor(data.length / 7);
-        let startIndex = dayIndex * segmentSize;
-        let todaysAnime = data.slice(startIndex, startIndex + segmentSize);
+        // Trik Pembagian: Bagi total anime yang sangat banyak ke dalam 7 hari secara konsisten
+        let segmentSize = Math.ceil(allAnimes.length / 7);
+        let todaysAnime = allAnimes.slice(dayIndex * segmentSize, (dayIndex + 1) * segmentSize);
 
         let html = '';
         todaysAnime.forEach((anime, idx) => {
-            // Perbaikan Poster: Gunakan getHighRes agar gambar tajam dan bersih
+            // Gunakan gambar resolusi tinggi (Poster Utama)
             let posterImg = getHighRes(anime.image); 
             let epBadge = getEpBadge(anime);
-            let score = anime.score || anime.rating || (8.0 + (idx * 0.1)).toFixed(2);
+            let score = anime.score || anime.rating || (7.5 + (Math.random() * 1.5)).toFixed(2);
             
-            // Buat jam rilis terlihat rapi (contoh: 19:00, 19:30, dst)
-            let hour = 18 + Math.floor(idx / 2);
-            let minute = (idx % 2 === 0) ? "00" : "30";
-            let fakeTime = `${hour}:${minute}`;
+            // Buat jam rilis simulasi yang rapi (10:00 s/d 23:00)
+            let hour = 10 + Math.floor(idx / 3);
+            let minute = (idx % 3 === 0) ? "00" : (idx % 3 === 1 ? "15" : "45");
+            let fakeTime = `${String(hour).padStart(2, '0')}:${minute}`;
 
             html += `
             <div class="sched-card" onclick="loadDetail('${anime.url}')">
@@ -1331,16 +1340,16 @@ async function loadJadwalData(dayIndex) {
                     <div class="sched-ep">${epBadge}</div>
                     <div class="sched-stats">
                         <span style="color:#fbbf24;">⭐ ${score}</span>
-                        <span style="margin-left:8px; color:#a1a1aa;">• Update Hari Ini</span>
+                        <span style="margin-left:8px; color:#3b82f6; font-weight:800;">• Update Rilis</span>
                     </div>
-                    <div class="sched-status"><span class="status-done">Tersedia Sekarang</span></div>
+                    <div class="sched-status"><span class="status-done">Sudah Tersedia</span></div>
                 </div>
             </div>`;
         });
 
-        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Belum ada jadwal rilis untuk hari ini.</div>`;
+        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Belum ada update untuk hari ini.</div>`;
     } catch(e) {
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Koneksi API terputus.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat data jadwal.</div>`;
     }
 }
 
