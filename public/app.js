@@ -1,10 +1,6 @@
 // ==========================================
 // 1. FIREBASE CONFIGURATION & INIT
 // ==========================================
-
-// Bank memori untuk menyimpan link poster asli agar bisa dipakai di menu Jadwal
-window.posterCacheMap = {}; 
-
 const firebaseConfig = {
   apiKey: "AIzaSyDHtgikUcph-eQh7qZEJELFogpPjIgtB0M",
   authDomain: "animeku-c39ab.firebaseapp.com",
@@ -656,54 +652,26 @@ function generateFavCardHtml(anime) { if (!anime) return ''; let epsBadge = getE
 async function fetchTimeout(url, timeoutMs = 15000) { const controller = new AbortController(); const id = setTimeout(() => controller.abort(), timeoutMs); try { const res = await fetch(url, { signal: controller.signal }); clearTimeout(id); return res; } catch (e) { clearTimeout(id); throw e; } }
 
 async function loadLatest() {
-    loader(true); 
-    const homeContainer = document.getElementById('home-view'); 
-    homeContainer.innerHTML = ''; 
-    let hasAnyData = false;
-
+    loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; let hasAnyData = false;
     try {
-        // ... (kode slider dan history biarkan saja)
-
+        try { let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 15000); if (res && res.ok) { sliderData = await res.json(); if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); hasAnyData = true; } } } catch (e) {}
+        try { const historyData = await getHistory(); if (historyData && historyData.length > 0) { const histDiv = document.createElement('div'); histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`; homeContainer.appendChild(histDiv); hasAnyData = true; } } catch (e) {}
+        
         const sectionContainers = [];
-        for (const section of HOME_SECTIONS) { 
-            // ... (kode pembuatan skeleton/loading biarkan saja)
-        }
-
+        for (const section of HOME_SECTIONS) { const div = document.createElement('div'); div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`; homeContainer.appendChild(div); sectionContainers.push({ section, div }); }
         const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
         const batches = chunkArray(sectionContainers, 3);
-
         for (const batch of batches) {
             await Promise.all(batch.map(async ({ section, div }) => {
                 try {
                     let combinedData = [];
-                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => { 
-                        try { 
-                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000); 
-                            if (res && res.ok) { 
-                                const data = await res.json(); 
-                                if (Array.isArray(data)) combinedData.push(...data); 
-                            } 
-                        } catch(e) {} 
-                    });
+                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => { try { const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000); if (res && res.ok) { const data = await res.json(); if (Array.isArray(data)) combinedData.push(...data); } } catch(e) {} });
                     await Promise.all(fetchPromises);
                     combinedData = removeDuplicates(combinedData, 'url');
-
-                    // --- TARUH DI SINI (Setelah combinedData terisi data asli) ---
-                    combinedData.forEach(anime => {
-                        if(anime.title && anime.image) {
-                            window.posterCacheMap[anime.title.trim()] = anime.image;
-                        }
-                    });
-                    // ------------------------------------------------------------
-
-                    if (combinedData.length > 0) { 
-                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`; 
-                        hasAnyData = true; 
-                    } else { div.remove(); }
+                    if (combinedData.length > 0) { div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`; hasAnyData = true; } else { div.remove(); }
                 } catch(e) { div.remove(); }
             }));
         }
-        // ... sisa kode biarkan
         if (!hasAnyData) { homeContainer.innerHTML = `<div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2><p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p><button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button></div>`; }
     } catch (err) { console.error("Home loading failed total", err); } finally { loader(false); }
 }
@@ -1339,37 +1307,48 @@ function renderJadwalDays(activeDay) {
 
 async function loadJadwalData(dayIndex) {
     const container = document.getElementById('sched-list-container');
-    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Sinkronisasi Poster...</div></div>';
+    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Sinkronisasi Jadwal Ongoing...</div></div>';
 
     try {
+        // STRATEGI: Ambil 4 halaman sekaligus dari /latest untuk stok data ongoing yang melimpah
         let allOngoing = [];
-        const pages = [1, 2, 3]; 
-        const results = await Promise.all(pages.map(p => fetchTimeout(`${API_BASE}/latest?page=${p}`, 10000).then(r => r.json())));
+        const pages = [1, 2, 3, 4]; 
+
+        const results = await Promise.all(
+            pages.map(p => fetchTimeout(`${API_BASE}/latest?page=${p}`, 10000).then(r => r.json()))
+        );
+        
         results.forEach(data => { if(Array.isArray(data)) allOngoing.push(...data); });
 
+        // Filter: Buang anime yang sudah Tamat/Completed
         allOngoing = removeDuplicates(allOngoing, 'url').filter(a => {
             const badge = getEpBadge(a).toLowerCase();
             return !badge.includes('tamat') && !badge.includes('completed');
         });
 
-        let todaysAnime = allOngoing.filter((_, idx) => idx % 7 === dayIndex);
-        let html = '';
+        if(allOngoing.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Jadwal sedang diperbarui oleh server.</div>`;
+            return;
+        }
 
+        // Distribusikan anime ke 7 hari secara konsisten
+        let todaysAnime = allOngoing.filter((_, idx) => idx % 7 === dayIndex);
+
+        let html = '';
         todaysAnime.forEach((anime, idx) => {
-            let judulBersih = anime.title.trim();
-            // TRIK: Ambil poster asli dari memori (hasil tangkapan halaman Home)
-            let posterFinal = window.posterCacheMap[judulBersih] || anime.image; 
-            
-            let posterImg = getHighRes(posterFinal); 
+            let posterImg = getHighRes(anime.image); // Gunakan logika poster baru
             let epBadge = getEpBadge(anime);
             let score = anime.score || anime.rating || (7.8 + (Math.random() * 1.2)).toFixed(2);
+            
+            // Jam rilis rapi (16:00 - 23:00)
             let hour = 16 + Math.floor(idx / 2);
             let minute = (idx % 2 === 0) ? "00" : "30";
+            let fakeTime = `${String(hour).padStart(2, '0')}:${minute}`;
 
             html += `
             <div class="sched-card" onclick="loadDetail('${anime.url}')">
-                <div class="sched-time">${hour}:${minute}</div>
-                <img src="${posterImg}" class="sched-img" onerror="this.src='https://placehold.co/75x110/1a1a1a/3b82f6?text=Anime'">
+                <div class="sched-time">${fakeTime}</div>
+                <img src="${posterImg}" class="sched-img" onerror="this.src='https://placehold.co/70x110/1a1a1a/3b82f6?text=Anime'">
                 <div class="sched-info">
                     <div class="sched-title">${anime.title}</div>
                     <div class="sched-ep" style="color: #3b82f6; font-weight: 800;">${epBadge}</div>
@@ -1381,9 +1360,10 @@ async function loadJadwalData(dayIndex) {
                 </div>
             </div>`;
         });
-        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Jadwal sedang disiapkan.</div>`;
+
+        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Belum ada jadwal untuk hari ini.</div>`;
     } catch(e) {
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Periksa koneksi internet.</div>`;
     }
 }
 
