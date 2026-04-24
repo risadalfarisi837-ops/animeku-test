@@ -446,18 +446,18 @@ function getHighRes(url) {
     if(!url) return ''; 
     try { 
         // TRIK: Mengubah folder thumbnail menjadi folder poster secara otomatis
-        // Banyak API anime menggunakan struktur folder yang sama antara thumb dan poster
         let posterUrl = url.replace('/thumbs/', '/posters/')
                            .replace('-thumb.jpg', '.jpg')
                            .replace('-thumb.png', '.png');
                            
-        // Jika sudah versi Google/Blogger, ambil resolusi tertinggi
+        // Jika link dari Blogger/Google, ambil resolusi asli (s0)
         return posterUrl.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/')
                         .replace(/=s\d+/g, '=s0'); 
     } catch(e) { 
         return url; 
     } 
 }
+
 function removeDuplicates(array, key) { const seen = new Set(); return array.filter(item => { if (!item || !item[key]) return false; if (seen.has(item[key])) return false; seen.add(item[key]); return true; }); }
 function getEpBadge(anime) { 
     if (!anime) return 'Anime'; let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
@@ -1307,13 +1307,12 @@ function renderJadwalDays(activeDay) {
 
 async function loadJadwalData(dayIndex) {
     const container = document.getElementById('sched-list-container');
-    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Mengambil Jadwal Ongoing Terbaru...</div></div>';
+    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Sinkronisasi Jadwal Ongoing...</div></div>';
 
     try {
-        // STRATEGI BARU: Ambil data dari /latest tapi beberapa halaman sekaligus
-        // Halaman 1 biasanya thumbnail, tapi halaman selanjutnya seringkali ditarik dari database utama
+        // STRATEGI: Ambil 4 halaman sekaligus dari /latest untuk stok data ongoing yang melimpah
         let allOngoing = [];
-        const pages = [1, 2, 3, 4]; // Kita ambil 4 halaman sekaligus (~80-100 anime)
+        const pages = [1, 2, 3, 4]; 
 
         const results = await Promise.all(
             pages.map(p => fetchTimeout(`${API_BASE}/latest?page=${p}`, 10000).then(r => r.json()))
@@ -1321,29 +1320,27 @@ async function loadJadwalData(dayIndex) {
         
         results.forEach(data => { if(Array.isArray(data)) allOngoing.push(...data); });
 
-        // Filter: Hanya ambil yang statusnya BUKAN "Tamat" jika memungkinkan
-        // Dan pastikan tidak ada duplikat
+        // Filter: Buang anime yang sudah Tamat/Completed
         allOngoing = removeDuplicates(allOngoing, 'url').filter(a => {
             const badge = getEpBadge(a).toLowerCase();
             return !badge.includes('tamat') && !badge.includes('completed');
         });
 
         if(allOngoing.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada update ongoing ditemukan.</div>`;
+            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Jadwal sedang diperbarui oleh server.</div>`;
             return;
         }
 
-        // Trik Pembagian Hari: Gunakan sisa bagi (modulo) agar distribusi anime tiap hari lebih adil
-        // dan setiap judul tetap konsisten di hari yang sama
+        // Distribusikan anime ke 7 hari secara konsisten
         let todaysAnime = allOngoing.filter((_, idx) => idx % 7 === dayIndex);
 
         let html = '';
         todaysAnime.forEach((anime, idx) => {
-            let posterImg = getHighRes(anime.image); 
+            let posterImg = getHighRes(anime.image); // Gunakan logika poster baru
             let epBadge = getEpBadge(anime);
             let score = anime.score || anime.rating || (7.8 + (Math.random() * 1.2)).toFixed(2);
             
-            // Jam rilis acak tapi sopan (16:00 - 23:00)
+            // Jam rilis rapi (16:00 - 23:00)
             let hour = 16 + Math.floor(idx / 2);
             let minute = (idx % 2 === 0) ? "00" : "30";
             let fakeTime = `${String(hour).padStart(2, '0')}:${minute}`;
@@ -1351,7 +1348,7 @@ async function loadJadwalData(dayIndex) {
             html += `
             <div class="sched-card" onclick="loadDetail('${anime.url}')">
                 <div class="sched-time">${fakeTime}</div>
-                <img src="${posterImg}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'">
+                <img src="${posterImg}" class="sched-img" onerror="this.src='https://placehold.co/70x110/1a1a1a/3b82f6?text=Anime'">
                 <div class="sched-info">
                     <div class="sched-title">${anime.title}</div>
                     <div class="sched-ep" style="color: #3b82f6; font-weight: 800;">${epBadge}</div>
@@ -1364,9 +1361,9 @@ async function loadJadwalData(dayIndex) {
             </div>`;
         });
 
-        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Jadwal rilis sedang disiapkan.</div>`;
+        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Belum ada jadwal untuk hari ini.</div>`;
     } catch(e) {
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat data. Silakan coba lagi.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Periksa koneksi internet.</div>`;
     }
 }
 
