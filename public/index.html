@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <link rel="apple-touch-icon" href="./animeku.jpg">
+    <link rel="icon" type="image/jpeg" href="./animeku.jpg">
+    <link rel="shortcut icon" href="./animeku.jpg">
+
+    <meta name="google-site-verification" content="_XqVJxLM1ZAYUKgMtPyr1C0twO9J7WaCA_ceBHATJOI" />
+
+    <meta property="og:title" content="Animeku - Nonton Anime Sub Indo Gratis Tanpa Iklan">
+    <meta property="og:description" content="Tempat streaming anime terbaik, update tiap hari, kualitas HD, dan 100% tanpa iklan! Langsung gas nonton di Animeku.">
+    <meta property="og:image" content="./animeku.jpg">
+    <meta property="og:url" content="https://animeku-indo.my.id">
+    <meta property="og:type" content="website">
+
+    <meta name="description" content="Nonton anime subtitle Indonesia gratis, update terbaru setiap hari, tanpa iklan mengganggu hanya di Animeku.">
+    <meta name="keywords" content="nonton anime, anime sub indo, streaming anime gratis, animeku, jadwal rilis anime, anime terbaru">
+    <meta name="author" content="Risyadh Al Farisy">
+    <meta name="robots" content="index, follow">
+    
+    <title>Animeku - Nonton Streaming Anime Sub Indo Gratis</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-family: 'Outfit', sans-serif; overflow-x: hidden; width: 100%; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hidden { display: none !important; }
+        
+        .navbar { position: sticky; top: 0; z-index: 1000; background: #050505; padding: 12px 15px; display: flex; align-items: center; gap: 12px; width: 100%; }
+        .app-logo { display: flex; align-items: center; font-weight: 900; font-size: 18px; letter-spacing: -0.5px; }
+        .app-logo .blue { color: #3b82f6; }
+        .app-logo .white { color: #fff; }
+        
+        .top-search-bar { flex: 1; display: flex; align-items: center; background: #1a1a1a; padding: 8px 15px; border-radius: 20px; }
+        .top-search-bar input { background: transparent !important; border: none !important; color: #fff !important; width: 100%; margin-left: 8px; outline: none !important; font-size: 14px; font-family: 'Outfit', sans-serif; }
+
+        /* LOADER DENGAN TEKS MEMUAT */
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(5px); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease; }
+        #loading .spinner { width: 45px; height: 45px; border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-text { color: #fff; font-weight: 700; font-size: 14px; margin-top: 15px; letter-spacing: 1px; animation: pulseText 1.5s infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulseText { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .hero-section-container { width: 100%; margin-bottom: 15px; padding-top: 10px; }
+        .hero-slider { width: calc(100% - 24px); height: 210px; margin: 0 12px; border-radius: 12px; position: relative; overflow: hidden; background: #111; }
+        .hero-wrapper { display: flex; height: 100%; width: 100%; }
+        .hero-slide { min-width: 100%; height: 100%; position: relative; cursor: pointer; }
+        .hero-bg { width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.4) 50%, transparent 100%); }
+        .hero-content { position: absolute; bottom: 15px; left: 15px; right: 15px; z-index: 2; }
+        .hero-badge { background: #3b82f6; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+        .hero-title { font-size: 16px; color: #fff; font-weight: bold; margin: 0 0 10px 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .hero-btn { background: #fff; color: #000; border: none; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+
+        .anime-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px; padding: 0 12px; align-items: start; width: 100%; }
+        .anime-grid .scroll-card { width: 100% !important; min-width: 0; }
+        
+        .horizontal-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 10px; scroll-snap-type: x mandatory; }
+        .scroll-card { width: 115px; flex-shrink: 0; scroll-snap-align: start; background: transparent; border-radius: 8px; overflow: hidden; cursor: pointer; position: relative; display: flex; flex-direction: column; }
+        .scroll-card-img { position: relative; width: 100%; padding-top: 140%; border-radius: 6px; overflow: hidden; background: #1a1a1a; }
+        .scroll-card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .badge-ep { position: absolute; top: 5px; left: 5px; background: #3b82f6; color: #fff; font-size: 10px; font-weight: bold; padding: 3px 5px; border-radius: 4px; z-index: 2; }
+        .badge-score { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.75); color: #fbbf24; font-size: 10px; font-weight: bold; padding: 3px 4px; border-radius: 4px; z-index: 2; display: flex; align-items: center; gap: 2px; }
+        .scroll-card-title { font-size: 13px; color: #fff; margin-top: 8px; line-height: 1.4; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+        
+        .recent-card { width: 140px; flex-shrink: 0; scroll-snap-align: start; display: flex; flex-direction: column; cursor: pointer; position: relative; }
+        .recent-img-box { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #1a1a1a; }
+        .recent-img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .recent-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1; }
+        .recent-ep-text { position: absolute; bottom: 6px; left: 8px; color: #fff; font-size: 11px; font-weight: 800; z-index: 2; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .recent-title { font-size: 12px; color: #fff; margin-top: 6px; line-height: 1.3; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .header-flex { display: flex; justify-content: space-between; align-items: center; padding: 15px 12px; width: 100%; }
+        .header-flex h2 { font-size: 18px; margin: 0; font-weight: bold; }
+        .more-link { color: #3b82f6; font-size: 13px; text-decoration: none; font-weight: 700; cursor: pointer; }
+
+        #recent-view.tab-content-container { padding-left: 0 !important; padding-right: 0 !important; }
+        #recent-results-container { padding: 0 !important; margin: 0 !important; width: 100%; overflow-x: hidden; }
+        .timeline-wrapper { padding: 0; margin: 0; position: relative; width: 100%; box-sizing: border-box; }
+        .timeline-group { position: relative; margin-bottom: 25px; width: 100%; }
+        .timeline-group::before { content: ''; position: absolute; left: 20px; top: 35px; bottom: -35px; width: 2px; background: #333; z-index: 0; }
+        .timeline-group:last-child::before { display: none; }
+        .timeline-date-badge { background: #1c3d73; color: #fff; font-size: 14px; font-weight: 800; padding: 6px 18px 6px 20px; border-radius: 0 20px 20px 0; display: inline-block; position: relative; z-index: 1; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); left: 0; }
+        .timeline-items { display: flex; flex-direction: column; gap: 15px; padding-left: 45px; padding-right: 15px; width: 100%; box-sizing: border-box; }
+        .timeline-card { background: #1c1c1e; border-radius: 12px; display: flex; gap: 12px; padding: 12px; cursor: pointer; position: relative; z-index: 1; border: 1px solid #2c2c2e; width: 100%; box-sizing: border-box; }
+        .timeline-img { width: 75px; height: 100px; border-radius: 8px; overflow: hidden; position: relative; flex-shrink: 0; background: #111; }
+        .timeline-img img { width: 100%; height: 100%; object-fit: cover; }
+        .timeline-play-icon { position: absolute; bottom: 6px; right: 6px; background: #3b82f6; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+        .timeline-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+        .timeline-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .timeline-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .timeline-time { font-size: 12px; color: #a1a1aa; font-weight: 700; flex-shrink: 0; }
+        .timeline-ep { font-size: 13px; color: #d1d5db; font-weight: 500; margin-top: 4px; }
+        .timeline-progress-container { margin-top: auto; padding-top: 10px; }
+        .timeline-progress-bg { height: 4px; background: #333; border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+        .timeline-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
+        .timeline-progress-text { font-size: 11px; color: #a1a1aa; text-align: right; font-weight: 600; }
+
+        .detail-hero { position: relative; width: 100vw; margin-left: calc(-50vw + 50%); height: 380px; background-size: cover; background-position: center top; display: flex; align-items: flex-end; }
+        .detail-hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.8) 40%, transparent 100%); }
+        .detail-hero-content { position: relative; z-index: 2; padding: 20px 15px; width: 100%; box-sizing: border-box; }
+        .nav-back { position: absolute; top: 15px; left: 15px; z-index: 10; }
+        .nav-back button { background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); border: none; color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .synopsis-text { font-size: 13px; color: #a1a1aa; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .synopsis-text.expanded { -webkit-line-clamp: unset; }
+        .read-more-btn { color: #3b82f6; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 5px; display: inline-block; }
+        
+        .video-container-fixed { width: 100vw; margin-left: calc(-50vw + 50%); background: #000; position: relative; padding-top: 56.25%; }
+        .video-container-fixed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: block; }
+        .watch-back-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .action-btn { background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
+        
+        .ep-square { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #1c1c1e; border-radius: 12px; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .ep-square.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+        .ep-square.watched { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99998; backdrop-filter: blur(2px); display: none; }
+        .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c1c1e; z-index: 99999; border-radius: 24px 24px 0 0; padding: 25px 20px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: none; }
+        .bottom-sheet.show { transform: translateY(0); }
+        
+        .server-list-btn { background: #2c2c2e; color: #fff; border: none; padding: 16px 20px; border-radius: 16px; font-weight: 700; font-size: 14px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 10px; transition: 0.2s; width: 100%; }
+        .server-list-btn:hover { background: #3a3a3c; }
+        .server-list-btn.active { background: #3b82f6; color: #fff; }
+
+        .comment-filter-btn { background: transparent; border: 1px solid #333; color: #aaa; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .comment-filter-btn.active { background: #fff; color: #000; border-color: #fff; }
+        
+        /* WARNA BADGE & EFEK ANIMASI PROFIL */
+        .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; letter-spacing: 0.2px; }
+        
+        .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
+        .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
+        .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
+        .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
+        .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
+        
+        .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
+        .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
+        .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
+        
+        @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
+        @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
+        @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
+        
+        .badge-member { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-premium-anim { background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb); background-size: 200% 100%; color: #fff; border: none; animation: shimmerPremium 2.5s infinite linear; box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
+        .badge-dev-anim { background: linear-gradient(90deg, #dc2626, #7f1d1d, #dc2626); background-size: 200% 100%; color: #fff; border: 1px solid #fca5a5; animation: devPulse 2s infinite ease-in-out, shimmerPremium 3s infinite linear; box-shadow: 0 0 10px rgba(220, 38, 38, 0.8); text-shadow: 0 0 4px rgba(255,255,255,0.5); }
+
+        @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+        @keyframes devPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(220, 38, 38, 0.6); } 50% { transform: scale(1.05); box-shadow: 0 0 16px rgba(239, 68, 68, 1); } }
+
+        @keyframes pulseGlowEmerald { 
+            0% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.6); transform: scale(1); } 
+            50% { box-shadow: 0 0 25px rgba(147, 51, 234, 0.9), 0 0 45px rgba(168, 85, 247, 0.5); transform: scale(1.08); } 
+            100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.6); transform: scale(1); } 
+        }
+        @keyframes pulseGlowDiamond { 
+            0% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.6), inset 0 0 5px rgba(255,255,255,0.3); transform: scale(1); filter: brightness(1); } 
+            50% { box-shadow: 0 0 30px rgba(96, 165, 250, 1), 0 0 50px rgba(59, 130, 246, 0.8), inset 0 0 15px rgba(255,255,255,0.9); transform: scale(1.12); filter: brightness(1.3); } 
+            100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.6), inset 0 0 5px rgba(255,255,255,0.3); transform: scale(1); filter: brightness(1); } 
+        }
+        @keyframes pulseGlowMaster { 
+            0% { box-shadow: 0 0 15px #ef4444, 0 0 30px #facc15; transform: scale(1); } 
+            25% { box-shadow: 0 0 15px #10b981, 0 0 30px #34d399; transform: scale(1.15); } 
+            50% { box-shadow: 0 0 15px #3b82f6, 0 0 30px #60a5fa; transform: scale(1.05); } 
+            75% { box-shadow: 0 0 15px #a855f7, 0 0 30px #ec4899; transform: scale(1.15); } 
+            100% { box-shadow: 0 0 15px #ef4444, 0 0 30px #facc15; transform: scale(1); } 
+        }
+        @keyframes twinkleStar { 0% { opacity: 0.2; transform: scale(0.5) rotate(0deg); text-shadow: 0 0 5px rgba(255,255,255,0.5); } 100% { opacity: 1; transform: scale(1.5) rotate(45deg); text-shadow: 0 0 15px rgba(255,255,255,1); } }
+        @keyframes majesticStar { 0% { opacity: 0.5; transform: scale(0.7) rotate(-10deg); filter: drop-shadow(0 0 5px #facc15); } 50% { opacity: 1; transform: scale(1.4) rotate(20deg); filter: drop-shadow(0 0 20px #facc15) drop-shadow(0 0 30px #fff); } 100% { opacity: 0.5; transform: scale(0.7) rotate(-10deg); filter: drop-shadow(0 0 5px #facc15); } }
+
+        .rank-icon { position: relative; } 
+        .rank-icon-emerald { animation: pulseGlowEmerald 2.5s infinite ease-in-out !important; border-color: rgba(168, 85, 247, 0.6) !important; background: rgba(147, 51, 234, 0.15) !important; }
+        .rank-icon-emerald::after { content: '✨'; position: absolute; top: -10px; right: -10px; font-size: 14px; animation: twinkleStar 1.2s infinite alternate ease-in-out; z-index: 5; }
+        .rank-icon-diamond { animation: pulseGlowDiamond 2s infinite ease-in-out !important; border-color: rgba(59, 130, 246, 0.6) !important; background: rgba(59, 130, 246, 0.15) !important; }
+        .rank-icon-master { animation: pulseGlowMaster 4s infinite linear !important; border: 2px solid transparent !important; }
+        .rank-icon-master::before { content: '🌟'; position: absolute; bottom: -12px; left: -10px; font-size: 16px; animation: majesticStar 2s infinite ease-in-out; z-index: 5; }
+        .rank-icon-master::after { content: '⭐'; position: absolute; top: -12px; right: -10px; font-size: 14px; animation: majesticStar 2.5s infinite ease-in-out 0.5s; z-index: 5; }
+        .rank-icon-mythic { animation: mythicPulse 1s infinite alternate ease-in-out !important; }
+
+        .profile-header { text-align: center; padding: 10px 0 20px 0; }
+        .profile-avatar-container { position: relative; display: inline-block; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #1a1a1a; object-fit: cover; }
+        .profile-camera-icon { position: absolute; bottom: 0; right: 0; background: #3b82f6; padding: 6px; border-radius: 50%; color: white; border: 2px solid #050505; display: flex; align-items: center; justify-content: center; }
+        .profile-name { font-size: 22px; font-weight: 800; margin: 12px 0 8px 0; }
+        .profile-stats { display: flex; justify-content: space-around; padding: 0 10px 25px 10px; margin-bottom: 5px; border-bottom: 1px solid #1a1a1a; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+        .stat-lbl { font-size: 11px; color: #a1a1aa; line-height: 1.3; font-weight: 500; }
+        .profile-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px; }
+        .ptab { padding: 12px 20px; color: #a1a1aa; font-weight: 800; font-size: 14px; cursor: pointer; position: relative; transition: 0.2s; }
+        .ptab.active { color: #fff; }
+        .ptab.active::after { content: ''; position: absolute; bottom: -1px; left: 20%; width: 60%; height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
+        
+                .profile-list-item { display: flex; gap: 12px; margin: 0 15px 15px 15px; align-items: center; padding: 12px; cursor: pointer; background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 12px; }
+        .pli-img { width: 65px; height: 65px; border-radius: 8px; object-fit: cover; }
+        .pli-info { flex: 1; }
+        .pli-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .pli-ep { font-size: 12px; color: #a1a1aa; margin-bottom: 8px; font-weight: 500; }
+        .pli-progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+        .pli-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
+        
+        .profile-comment-box { background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 12px; padding: 15px; margin: 0 15px 15px 15px; }
+        .profile-comment-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: #a1a1aa; border-bottom: 1px solid #333; padding-bottom: 8px;}
+        .profile-comment-anime { font-weight: 700; color: #3b82f6; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; max-width: 70%; cursor: pointer;}
+        .profile-comment-text { font-size: 13px; color: #fff; line-height: 1.5; font-style: italic; }
+
+        .level-rank-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #222; }
+        .level-rank-item:last-child { border-bottom: none; }
+        .rank-info { display: flex; align-items: center; gap: 15px; }
+        .rank-icon { width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .rank-title { font-weight: 800; font-size: 15px; color: #fff; margin-bottom: 2px; }
+        .rank-req { font-size: 11px; color: #888; font-weight: 500; }
+        .rank-status { font-size: 18px; }
+
+        .sort-option { padding: 12px 15px; font-size: 13px; font-weight: 600; color: #d1d5db; cursor: pointer; border-bottom: 1px solid #2c2c2e; transition: 0.2s; }
+        .sort-option:last-child { border-bottom: none; }
+        .sort-option:hover { background: #2c2c2e; color: #fff; }
+        
+        .fav-card { width: 100%; display: flex; flex-direction: column; cursor: pointer; }
+        .fav-card-img { position: relative; width: 100%; padding-top: 140%; border-radius: 8px; overflow: hidden; background: #1a1a1a; }
+        .fav-card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .fav-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1; }
+        .fav-ep { position: absolute; bottom: 8px; left: 8px; color: #fff; font-size: 12px; font-weight: 800; z-index: 2; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .fav-score { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fbbf24; font-size: 11px; font-weight: bold; padding: 4px 6px; border-radius: 6px; z-index: 2; display: flex; align-items: center; gap: 4px; }
+        .fav-views { font-size: 10px; color: #a1a1aa; margin-top: 8px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+        .fav-title { font-size: 13px; color: #fff; margin-top: 4px; line-height: 1.3; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #050505; display: flex; border-top: 1px solid #111; z-index: 1000; }
+        .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
+        .nav-item svg { margin-bottom: 4px; }
+        .nav-item.active { color: #3b82f6; }
+        /* === TAMPILAN WIDE BUBBLE (LEBAR, LEGA, TAPI TETAP MEMBULAT) === */
+        
+        /* 1. Jadwal, History Profil, & Kotak Komentar */
+        .sched-card, 
+        .profile-list-item, 
+        .profile-comment-box {
+            margin-left: 8px !important;
+            margin-right: 8px !important;
+            border-radius: 16px !important; /* Efek Bubble dipertahankan */
+            width: calc(100% - 16px) !important; /* Mentok ngelebar tapi sisa jarak aman 8px */
+            box-sizing: border-box !important;
+        }
+
+        /* 2. Kotak Komentar di Profil */
+        div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
+            margin-left: 8px !important;
+            margin-right: 8px !important;
+            border-radius: 16px !important; /* Efek Bubble */
+            width: calc(100% - 16px) !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 3. List Episode di Detail View */
+        #episode-list-detail-container {
+            /* Tarik keluar sedikit biar lebih lebar dari padding wadah aslinya */
+            margin-left: -4px !important; 
+            margin-right: -4px !important;
+            width: calc(100% + 8px) !important;
+        }
+        div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
+            border-radius: 16px !important; /* Balikin jadi Bubble */
+            border: 1px solid #2c2c2e !important; /* Biar ngga kelihatan nyatu sama background */
+        }
+    </style>
+</head>
+<body>
+    <audio id="silent-audio" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"></audio>
+
+    <div id="xp-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+        <div id="xp-modal-card" style="background: #111; border: 1px solid #222; border-radius: 20px; padding: 30px; width: 260px; text-align: center; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); border: 3px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+            </div>
+            <div id="xp-title-text" style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase;">EXP Gained</div>
+            <div id="xp-amount-text" style="font-size: 48px; font-weight: 900; color: #fff; margin-bottom: 0; line-height: 1;">+2</div>
+            <div style="font-size: 14px; color: #888; font-weight: 600; margin-bottom: 25px;">point</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                <div id="xp-level-text" style="font-size: 15px; font-weight: 800; color: #fff;">Level 1</div>
+                <div id="xp-progress-text" style="font-size: 13px; font-weight: 700; color: #a1a1aa;">0%</div>
+            </div>
+            <div style="width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden;">
+                <div id="xp-progress-fill" style="height: 100%; background: #3b82f6; border-radius: 3px; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="levelModalOverlay" class="modal-overlay" onclick="closeLevelModal()"></div>
+    <div id="levelModal" class="bottom-sheet" style="padding: 0; max-height: 80vh; display: flex; flex-direction: column;">
+        <div style="padding: 20px; text-align: center; border-bottom: 1px solid #222; position: relative;">
+            <h2 style="font-size: 18px; font-weight: 900; margin: 0 0 5px 0;">Level Progress</h2>
+            <div id="level-modal-subtitle" style="font-size: 13px; color: #a1a1aa; font-weight: 500;">Level 1 • Stone</div>
+            <button onclick="closeLevelModal()" style="position: absolute; right: 15px; top: 15px; background: transparent; border: none; color: #888; cursor: pointer; padding: 5px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div id="level-modal-list" class="hide-scrollbar" style="padding: 0 20px; overflow-y: auto; flex: 1;"></div>
+        <div style="padding: 20px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a;">
+            <div style="font-size: 13px; font-weight: 800; color: #a1a1aa;">EXP: <span id="level-modal-total-exp" style="color: #fff;">0</span></div>
+            <div style="font-size: 13px; font-weight: 800; color: #a1a1aa;">Waktu: <span id="level-modal-total-time" style="color: #fff;">0j 0m</span></div>
+        </div>
+    </div>
+
+    <div id="serverModalOverlay" class="modal-overlay" onclick="closeServerModal()"></div>
+    <div id="serverModal" class="bottom-sheet">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="font-weight: 800; font-size: 18px;">Pilih Quality Server</div>
+            <button onclick="closeServerModal()" style="background: transparent; border: none; color: #aaa; cursor: pointer; padding: 5px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div id="modal-server-list" style="display: flex; flex-direction: column; max-height: 50vh; overflow-y: auto;" class="hide-scrollbar"></div>
+    </div>
+
+    <div id="replyModalOverlay" class="modal-overlay" onclick="closeReplyModal()"></div>
+    <div id="replyModal" class="bottom-sheet">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #333;">
+            <div style="font-weight: 800; font-size: 18px;">Replies</div>
+            <button onclick="closeReplyModal()" style="background: transparent; border: none; color: #aaa; cursor: pointer;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div id="reply-parent-content" style="margin-bottom: 10px;"></div>
+        <div id="reply-list-container" class="hide-scrollbar" style="max-height: 40vh; overflow-y: auto; margin-bottom: 15px; padding-left: 20px; border-left: 2px solid #333; margin-left: 18px;"></div>
+        <div id="reply-input-area"></div>
+    </div>
+
+    <nav class="navbar" id="mainNavbar">
+        <div class="app-logo">
+            <span class="blue">Anime</span><span class="white">ku</span>
+        </div>
+        <div class="top-search-bar" id="searchBarWrapper">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" placeholder="Cari Anime..." onkeypress="if(event.key === 'Enter') handleSearch(this.value)">
+        </div>
+    </nav>
+
+    <main id="app" style="padding-bottom: 80px;">
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <div class="loading-text">Memuat...</div>
+        </div>
+        
+        <div id="home-view"></div>
+        <div id="search-view" class="hidden tab-content-container" style="width: 100%; overflow-x: hidden;"></div>
+        
+        <div id="jadwal-view" class="hidden tab-content-container">
+            <div style="text-align: center; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a;">
+                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Jadwal Rilis Anime</h1>
+            </div>
+            <div id="sched-days-container" class="sched-day-scroll hide-scrollbar"></div>
+            <div id="sched-list-container" style="flex:1; overflow-y:auto; padding-bottom:20px; position:relative;"></div>
+            <div class="sched-float-nav">
+                <button id="sched-btn-prev" class="sched-btn" onclick="changeJadwalDay(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M15 18l-6-6 6-6"/></svg> <span id="sched-text-prev">Kemarin</span></button>
+                <button id="sched-btn-next" class="sched-btn" onclick="changeJadwalDay(1)"><span id="sched-text-next">Besok</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+        </div>
+
+        <div id="recent-view" class="hidden tab-content-container">
+            <div style="text-align: center; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
+                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Riwayat Nonton</h1>
+            </div>
+            <div id="recent-results-container" class="search-results-container"></div>
+        </div>
+        
+        <div id="favorite-view" class="hidden tab-content-container">
+            <div style="text-align: center; padding-top: 10px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a;">
+                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Subscribed Anime</h1>
+            </div>
+            <div style="padding: 15px 15px 5px 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 16px; font-weight: 800; color: #fff;">Total (<span id="fav-total-count">0</span>)</div>
+                <div style="position: relative;">
+                    <button onclick="toggleSortMenu()" id="current-sort-btn" style="background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 0;">New Update <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg></button>
+                    <div id="sort-dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; background: #1c1c1e; border: 1px solid #333; border-radius: 12px; width: 140px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                        <div class="sort-option" onclick="applyFavSort('new', 'New Update')">New Update</div>
+                        <div class="sort-option" onclick="applyFavSort('az', 'A-Z')">A-Z</div>
+                        <div class="sort-option" onclick="applyFavSort('za', 'Z-A')">Z-A</div>
+                        <div class="sort-option" onclick="applyFavSort('rating', 'Rating')">Rating</div>
+                        <div class="sort-option" onclick="applyFavSort('popular', 'Popular')">Popular</div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 0 15px; margin-bottom: 10px;">
+                <div style="font-size: 14px; font-weight: 700; color: #fff;">Completed (<span id="fav-completed-count">0</span>)</div>
+            </div>
+            <div id="favorite-results-container" style="padding-top: 5px;"></div>
+        </div>
+
+        <div id="developer-view" class="hidden">
+            <div id="auth-check-container" style="padding-bottom: 20px;"></div>
+        </div>
+        <div id="detail-view" class="hidden"></div>
+        <div id="watch-view" class="hidden"></div>
+        
+        <div style="text-align: center; padding: 30px 20px 20px 20px; color: #555; font-size: 13px; font-weight: 500;">
+            &copy; 2026 Animeku. Developed by <a href="https://wa.me/6281315059849" target="_blank" style="color: #3b82f6; font-weight:bold; text-decoration: none;">Risyadh Al Farisy</a>
+        </div>
+    </main>
+
+    <nav class="bottom-nav" id="bottomNav">
+        <button class="nav-item active" onclick="switchTab('home')" id="tab-home" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Home</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('jadwal')" id="tab-jadwal" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Jadwal</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('recent')" id="tab-recent" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>Recent</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('favorite')" id="tab-favorite" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span>Subscribe</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('developer')" id="tab-developer" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Akun</span>
+        </button>
+    </nav>
+    <script src="app.js?v=1"></script>
+</body>
+</html>
