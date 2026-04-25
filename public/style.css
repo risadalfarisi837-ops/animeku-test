@@ -107,12 +107,66 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
 
 .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; letter-spacing: 0.2px; }
 
-.badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
-.badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
-.badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
-.badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
-.badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
+/* === GLOW UP ALL RANKS === */
+/* Animasi kilauan cahaya berjalan untuk efek logam */
+@keyframes shineMetal {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
 
+/* Animasi glowing berdetak */
+@keyframes pulseGlowGold { 
+    0% { box-shadow: 0 0 4px rgba(251, 191, 36, 0.4); transform: scale(1); } 
+    100% { box-shadow: 0 0 16px rgba(251, 191, 36, 0.9); transform: scale(1.02); } 
+}
+
+/* STONE - Efek batu onyx gelap */
+.badge-lvl-stone, .rank-icon-stone { 
+    background: linear-gradient(135deg, #3f3f46, #18181b, #3f3f46) !important; 
+    color: #d4d4d8 !important; 
+    border: 1px solid #52525b !important; 
+    box-shadow: 0 0 8px rgba(0,0,0,0.8) !important;
+}
+
+/* BRONZE - Efek tembaga mengkilap */
+.badge-lvl-bronze, .rank-icon-bronze { 
+    background: linear-gradient(90deg, #92400e, #d97706, #92400e) !important; 
+    background-size: 200% auto !important;
+    color: #fef3c7 !important; 
+    border: 1px solid #b45309 !important; 
+    animation: shineMetal 3s infinite linear !important;
+    box-shadow: 0 0 10px rgba(180, 83, 9, 0.5) !important;
+}
+
+/* SILVER - Efek perak berkilau */
+.badge-lvl-silver, .rank-icon-silver { 
+    background: linear-gradient(90deg, #94a3b8, #f1f5f9, #94a3b8) !important; 
+    background-size: 200% auto !important;
+    color: #0f172a !important; 
+    border: 1px solid #cbd5e1 !important; 
+    animation: shineMetal 2.5s infinite linear !important;
+    box-shadow: 0 0 12px rgba(148, 163, 184, 0.6) !important;
+}
+
+/* GOLD - Efek emas murni + glowing */
+.badge-lvl-gold, .rank-icon-gold { 
+    background: linear-gradient(90deg, #b45309, #fcd34d, #b45309) !important; 
+    background-size: 200% auto !important;
+    color: #fff !important; 
+    border: 1px solid #fef08a !important; 
+    animation: shineMetal 2s infinite linear, pulseGlowGold 1.5s infinite alternate !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* EMERALD - (Update biar lebih menyala) */
+.badge-lvl-emerald { 
+    background: linear-gradient(90deg, #047857, #34d399, #047857) !important; 
+    background-size: 200% auto !important;
+    color: #fff !important; 
+    border: 1px solid #6ee7b7 !important; 
+    animation: shineMetal 2s infinite linear, pulseGlowEmerald 2s infinite alternate !important;
+}
+/* ======================== */
 .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
 .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
 .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
@@ -268,43 +322,4 @@ div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
 div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
     border-radius: 16px !important; 
     border: 1px solid #2c2c2e !important; 
-}
-
-/* ==========================================
-   EFEK RIPPLE (GELOMBANG AIR) KHAS ANDROID
-   ========================================== */
-
-/* 1. Kunci elemen biar gelombangnya gak bocor keluar garis */
-.scroll-card, .recent-card, .sched-card, .timeline-card, 
-.action-btn, .hero-btn, .nav-item, .ep-square, .profile-list-item {
-    position: relative;
-    overflow: hidden;
-}
-
-/* 2. Siapkan elemen gelombang gaib (transparan) */
-.scroll-card::after, .recent-card::after, .sched-card::after, .timeline-card::after, 
-.action-btn::after, .hero-btn::after, .nav-item::after, .ep-square::after, .profile-list-item::after {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    /* Bikin bentuk lingkaran putih memudar */
-    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
-    background-repeat: no-repeat;
-    background-position: 50%;
-    transform: scale(10, 10);
-    opacity: 0;
-    transition: transform 0.5s, opacity 1s;
-}
-
-/* 3. Munculkan kilatan gelombang PAS DITAHAN / DIPENCET */
-.scroll-card:active::after, .recent-card:active::after, .sched-card:active::after, .timeline-card:active::after, 
-.action-btn:active::after, .hero-btn:active::after, .nav-item:active::after, .ep-square:active::after, .profile-list-item:active::after {
-    transform: scale(0, 0);
-    opacity: 0.25; /* Tingkat kecerahan kilat putihnya (0.25 pas, nggak terlalu silau) */
-    transition: 0s;
 }
