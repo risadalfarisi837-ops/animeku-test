@@ -122,46 +122,48 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
 
 /* === PREMIUM RANK TIERS RE-DESIGN === */
 
-/* STONE - Efek Batu Onyx Gelap */
-.badge-lvl-stone, .rank-icon-stone { 
-    background: linear-gradient(135deg, #444, #111, #333) !important; 
-    color: #d1d5db !important; 
-    border: 1px solid #555 !important; 
-    box-shadow: 0 0 10px rgba(0,0,0,0.8) !important;
-}
+/* === FIX WARNA RANK BIAR TEBEL & NYALA SEMUA === */
 
-/* BRONZE - Efek Tembaga/Perunggu Metalik */
-.badge-lvl-bronze, .rank-icon-bronze { 
-    background: linear-gradient(135deg, #92400e, #d97706, #78350f) !important; 
-    color: #ffedd5 !important; 
-    border: 1px solid #b45309 !important; 
-    box-shadow: 0 0 12px rgba(180, 83, 9, 0.4) !important;
-}
-
-/* SILVER - Efek Perak/Chrome Mengkilap */
-.badge-lvl-silver, .rank-icon-silver { 
-    background: linear-gradient(135deg, #94a3b8, #f8fafc, #64748b) !important; 
-    color: #1e293b !important; 
-    border: 1px solid #cbd5e1 !important; 
-    box-shadow: 0 0 12px rgba(148, 163, 184, 0.5) !important;
-}
-
-/* GOLD - Efek Emas Murni 24K */
-.badge-lvl-gold, .rank-icon-gold { 
-    background: linear-gradient(135deg, #b45309, #fbbf24, #f59e0b) !important; 
-    color: #451a03 !important; 
-    border: 1.5px solid #fef08a !important; 
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.6) !important;
-    font-weight: 900 !important;
-}
-
-/* EMERALD - Efek Kristal Hijau Jamrud (Sesuai masukan Anda) */
-.badge-lvl-emerald, .rank-icon-emerald { 
-    background: linear-gradient(135deg, #064e3b, #10b981, #059669) !important; 
+/* STONE - Abu-abu gelap metalik */
+.badge-lvl-stone { 
+    background: linear-gradient(135deg, #444, #222) !important; 
     color: #fff !important; 
-    border: 1.5px solid #6ee7b7 !important; 
-    box-shadow: 0 0 18px rgba(16, 185, 129, 0.6) !important;
-    animation: shineMetal 2s infinite linear, emeraldPulse 2s infinite alternate !important;
+    border: 1px solid #555 !important; 
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+/* BRONZE - Cokelat tembaga tebel */
+.badge-lvl-bronze { 
+    background: linear-gradient(135deg, #cd7f32, #8b4513) !important; 
+    color: #fff !important; 
+    border: 1px solid #a0522d !important; 
+    box-shadow: 0 0 8px rgba(205, 127, 50, 0.4);
+}
+
+/* SILVER - Perak mengkilap */
+.badge-lvl-silver { 
+    background: linear-gradient(135deg, #bdc3c7, #7f8c8d) !important; 
+    color: #fff !important; 
+    border: 1px solid #ecf0f1 !important; 
+    box-shadow: 0 0 8px rgba(189, 195, 199, 0.4);
+}
+
+/* GOLD - Emas terang (Mirip Diamond tapi kuning) */
+.badge-lvl-gold { 
+    background: linear-gradient(135deg, #f1c40f, #f39c12) !important; 
+    color: #fff !important; 
+    border: 1px solid #f9e79f !important; 
+    animation: shineMetal 2s infinite linear; /* Tambahin biar kilap */
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+/* EMERALD - Hijau kristal tebel (Sekarang selevel Diamond) */
+.badge-lvl-emerald { 
+    background: linear-gradient(135deg, #2ecc71, #27ae60) !important; 
+    color: #fff !important; 
+    border: 1px solid #abebc6 !important; 
+    animation: shineMetal 2s infinite linear; 
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
 }
 
 /* DIAMOND - Biru Berlian (Pertahankan kemewahannya) */
@@ -173,13 +175,23 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
     animation: shineMetal 2s infinite linear, pulseGlowCyan 2s infinite alternate !important;
 }
 
-/* MASTER - Emas Kerajaan / Royal Gold */
+/* MASTER - Royal Gold Edition (Tebal & Menyala) */
 .badge-lvl-master, .rank-icon-master { 
-    background: linear-gradient(135deg, #78350f, #facc15, #92400e) !important; 
+    background: linear-gradient(135deg, #78350f 0%, #facc15 50%, #92400e 100%) !important; 
+    background-size: 200% auto !important;
     color: #fff !important; 
     border: 2px solid #fbbf24 !important; 
-    box-shadow: 0 0 25px rgba(234, 179, 8, 0.5) !important;
+    font-weight: 900 !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    /* Aura emas tebal */
+    box-shadow: 0 0 25px rgba(234, 179, 8, 0.6), inset 0 0 10px rgba(255,255,255,0.4) !important;
     animation: shineMetal 1.5s infinite linear, masterGlow 3s infinite ease-in-out !important;
+}
+
+/* Animasi nafas cahaya untuk Master */
+@keyframes masterGlow {
+    0%, 100% { filter: brightness(1); transform: scale(1); }
+    50% { filter: brightness(1.3); transform: scale(1.02); }
 }
 
 /* MYTHIC - Api Merah Menyala */
