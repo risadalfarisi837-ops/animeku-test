@@ -1152,42 +1152,45 @@ window.postReply = function(parentID) {
 };
 
 
-window.allowExitApp = false; window.historyTrapSet = false;
-function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
-window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
+window.allowExitApp = false;
+
+// 1. POPSTATE LISTENER: Menangkap aksi tombol back (geser layar / tombol fisik)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return; 
     let hash = window.location.hash; 
     let p = document.getElementById('video-player'); 
+    
+    // Matikan video kalau keluar dari halaman tontonan
     if (p && hash !== '#watch') { p.src = ''; }
 
-    // --- LOGIKA TOMBOL KEMBALI (BACK) YANG DIPERBAIKI ---
+    // Jika mentok sampai awal history (#trap), cegah keluar & buka modal
     if (hash === '#trap' || hash === '') { 
-        // 1. Cek apakah tampilan layar saat ini adalah "Home"
-        let isHomeActive = !document.getElementById('home-view').classList.contains('hidden');
-        
-        if (!isHomeActive) {
-            // 2. Jika bukan di Home (misal di Jadwal/Subscribe), arahkan ke Home dulu
-            switchTab('home');
-            history.pushState(null, '', '#home'); // Reset jebakan agar tidak langsung keluar
-        } else {
-            // 3. Jika sudah murni di Home, baru buka modal konfirmasi keluar
-            openExitModal(); 
-            history.pushState(null, '', '#home'); // Tahan state agar aplikasi tidak tertutup paksa
-        }
+        openExitModal(); 
+        history.pushState(null, '', '#home'); // Tahan aplikasi biar nggak tertutup
         return; 
     }
-    // ----------------------------------------------------
-
+    
+    // Navigasi tab seperti biasa
     let page = hash.replace('#', '') || 'home'; 
     switchTab(page); 
 });
 
-window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
+// 2. FUNGSI TOMBOL PANAH DALAM APP (Lebih aman pakai ganti hash langsung)
+window.goHome = function() { 
+    if (window.location.hash !== '#home') { 
+        window.location.hash = 'home'; 
+    } 
+};
+
 window.backToDetail = function() { 
     window.currentPlayingAnime = null;
-    window.renderDetailEpisodeUI();
-    if (window.location.hash === '#watch') { history.back(); } else { switchTab('detail'); } 
+    if(typeof window.renderDetailEpisodeUI === 'function') window.renderDetailEpisodeUI();
+    
+    if (window.location.hash === '#watch') { 
+        history.back(); // Jika sedang nonton, aman pakai history.back
+    } else { 
+        window.location.hash = 'detail'; 
+    } 
 };
 
 window.injectExitModal = function() {
@@ -1394,9 +1397,20 @@ function initApp() {
     updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal(); 
     injectChangeNameModal(); 
     injectLogoutModal(); 
-    injectTransactionModal(); // <--- WAJIB ADA BIAR KONFIRMASINYA MUNCUL
-    if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
-    switchTab('home'); 
+    injectTransactionModal(); 
+    
+    // === MENGUNCI HISTORY SAAT APP PERTAMA KALI DIBUKA ===
+    let currentHash = window.location.hash || '#home';
+    if (!sessionStorage.getItem('animeku_trap')) {
+        // Buat pondasi history bawah sadar sebagai 'jebakan'
+        history.replaceState(null, '', '#trap');
+        history.pushState(null, '', currentHash);
+        sessionStorage.setItem('animeku_trap', 'true');
+    } else if (window.location.hash === '') {
+        history.replaceState(null, '', '#home');
+    }
+
+    switchTab(currentHash.replace('#', '')); 
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
 
