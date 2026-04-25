@@ -138,11 +138,16 @@ window.loginDenganGoogle = function() {
 
 window.logoutAkun = function() { auth.signOut().then(() => { window.showToast("Berhasil keluar dari akun.", 'success'); setTimeout(() => { location.reload(); }, 1500); }); };
 
+// Ganti bagian ini di app.js kamu agar warnanya SOLID (Tebal)
 const RANK_TIERS = [
-    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" }, { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
-    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥈" }, { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.15)", icon: "🥇" },
-    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" }, { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
-    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" }, { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
+    { name: "Stone", minLvl: 0, maxLvl: 49, color: "#444444", icon: "🌑" }, 
+    { name: "Bronze", minLvl: 50, maxLvl: 149, color: "#cd7f32", icon: "🥉" },
+    { name: "Silver", minLvl: 150, maxLvl: 499, color: "#bdc3c7", icon: "🥈" }, 
+    { name: "Gold", minLvl: 500, maxLvl: 2499, color: "#f1c40f", icon: "🥇" },
+    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "#2ecc71", icon: "🔮" }, 
+    { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "#3498db", icon: "💎" },
+    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "#9b59b6", icon: "👑" }, 
+    { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "#ef4444", icon: "🌟" }
 ];
 function getRankInfo(level) { return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0]; }
 
