@@ -234,38 +234,51 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
 .fav-views { font-size: 10px; color: #a1a1aa; margin-top: 8px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
 .fav-title { font-size: 13px; color: #fff; margin-top: 4px; line-height: 1.3; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* === ANIMASI BOTTOM NAV BUBBLE (TEKS MUNCUL) === */
+/* === ANIMASI BOTTOM NAV CLEAN & BOUNCY (SEPERTI DI VIDEO) === */
 .bottom-nav { 
     position: fixed; 
     bottom: 0; 
     left: 0; 
     width: 100%; 
-    background: rgba(5, 5, 5, 0.95); /* Sedikit blur estetik */
+    background: rgba(5, 5, 5, 0.95); /* Sedikit transparan/blur ala iOS */
     backdrop-filter: blur(10px);
     display: flex; 
-    justify-content: space-evenly; /* Mengatur jarak otomatis */
-    align-items: center; 
     border-top: 1px solid #111; 
     z-index: 1000; 
-    padding: 10px; /* Beri ruang agar gelembung tidak mentok */
+    padding-bottom: env(safe-area-inset-bottom); /* Aman untuk HP modern tanpa tombol fisik */
 }
 
 .nav-item { 
-    flex: unset !important; /* Paksa hilangkan ukuran bawaan dari HTML */
+    flex: 1; 
+    padding: 12px 0; 
     background: transparent; 
     border: none; 
     display: flex; 
-    flex-direction: row; /* Sejajarkan Ikon & Teks menyamping */
+    flex-direction: column; /* Ikon di atas, teks di bawah */
     align-items: center; 
     justify-content: center; 
-    color: #888; 
+    color: #666; /* Warna ikon/teks saat tidak aktif */
     cursor: pointer; 
-    padding: 10px 16px; 
-    border-radius: 30px; /* Bikin bentuknya seperti pil/kapsul membulat */
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2); /* Animasi mumbul */
+    transition: color 0.3s ease; /* Transisi pergantian warna halus */
     font-family: 'Outfit', sans-serif; 
-    font-weight: 800;
-    -webkit-tap-highlight-color: transparent; 
+    font-size: 11px; 
+    font-weight: 700;
+    -webkit-tap-highlight-color: transparent; /* Hilangkan kotak biru Android saat tap */
+}
+
+.nav-item svg { 
+    margin-bottom: 4px; 
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1.2); /* Animasi mumbul khusus di ikon */
+}
+
+/* Warna saat menu sedang aktif (biru) */
+.nav-item.active { 
+    color: #3b82f6; 
+}
+
+/* EFEK TAP: Ikon menciut sedikit saat layar ditekan */
+.nav-item:active svg {
+    transform: scale(0.8);
 }
 
 .nav-item svg { 
