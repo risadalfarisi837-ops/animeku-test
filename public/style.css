@@ -158,17 +158,48 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* EMERALD - (Update biar lebih menyala) */
-.badge-lvl-emerald { 
-    background: linear-gradient(90deg, #047857, #34d399, #047857) !important; 
+/* EMERALD - Efek Kristal Hijau Deep dengan Aura Menyala */
+.badge-lvl-emerald, .rank-icon-emerald { 
+    background: linear-gradient(135deg, #065f46, #10b981, #34d399, #059669) !important; 
     background-size: 200% auto !important;
     color: #fff !important; 
-    border: 1px solid #6ee7b7 !important; 
-    animation: shineMetal 2s infinite linear, pulseGlowEmerald 2s infinite alternate !important;
+    border: 1.5px solid #6ee7b7 !important; 
+    animation: shineMetal 2s infinite linear, emeraldPulse 2s infinite alternate !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6) !important;
+}
+
+@keyframes emeraldPulse {
+    0% { filter: drop-shadow(0 0 5px #10b981) brightness(1); transform: scale(1); }
+    100% { filter: drop-shadow(0 0 20px #34d399) brightness(1.2); transform: scale(1.03); }
 }
 /* ======================== */
 .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
-.badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
+/* MASTER - Efek Mahkota Emas Kerajaan dengan Kilau Pelangi Tipis */
+.badge-lvl-master, .rank-icon-master { 
+    background: linear-gradient(90deg, #92400e, #f59e0b, #fef3c7, #d97706, #92400e) !important; 
+    background-size: 200% auto !important;
+    color: #451a03 !important; 
+    border: 1.5px solid #fbbf24 !important; 
+    font-weight: 900 !important;
+    animation: shineMetal 1.5s infinite linear, masterGlow 3s infinite ease-in-out !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(255,255,255,0.5) !important;
+}
+
+@keyframes masterGlow {
+    0%, 100% { filter: brightness(1) saturate(1); }
+    50% { filter: brightness(1.3) saturate(1.5); transform: translateY(-2px); }
+}
+
+/* Tambahkan kilauan bintang kecil di Master (Optional) */
+.rank-icon-master::after {
+    content: '✨';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 12px;
+    animation: twinkleStar 1s infinite alternate;
+}
 .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
 
 .badge-member { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
