@@ -442,22 +442,7 @@ window.renderDetailEpisodeUI = function() {
     }
 };
 
-function getHighRes(url) { 
-    if(!url) return ''; 
-    try { 
-        // TRIK: Mengubah folder thumbnail menjadi folder poster secara otomatis
-        let posterUrl = url.replace('/thumbs/', '/posters/')
-                           .replace('-thumb.jpg', '.jpg')
-                           .replace('-thumb.png', '.png');
-                           
-        // Jika link dari Blogger/Google, ambil resolusi asli (s0)
-        return posterUrl.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/')
-                        .replace(/=s\d+/g, '=s0'); 
-    } catch(e) { 
-        return url; 
-    } 
-}
-
+function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 function removeDuplicates(array, key) { const seen = new Set(); return array.filter(item => { if (!item || !item[key]) return false; if (seen.has(item[key])) return false; seen.add(item[key]); return true; }); }
 function getEpBadge(anime) { 
     if (!anime) return 'Anime'; let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
@@ -1171,9 +1156,31 @@ window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
 window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
 window.addEventListener('popstate', (e) => { 
-    if (window.allowExitApp) return; let hash = window.location.hash; let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
-    if (hash === '#trap' || hash === '') { openExitModal(); history.pushState(null, '', '#home'); return; }
-    let page = hash.replace('#', '') || 'home'; switchTab(page); 
+    if (window.allowExitApp) return; 
+    let hash = window.location.hash; 
+    let p = document.getElementById('video-player'); 
+    if (p && hash !== '#watch') { p.src = ''; }
+
+    // --- LOGIKA TOMBOL KEMBALI (BACK) YANG DIPERBAIKI ---
+    if (hash === '#trap' || hash === '') { 
+        // 1. Cek apakah tampilan layar saat ini adalah "Home"
+        let isHomeActive = !document.getElementById('home-view').classList.contains('hidden');
+        
+        if (!isHomeActive) {
+            // 2. Jika bukan di Home (misal di Jadwal/Subscribe), arahkan ke Home dulu
+            switchTab('home');
+            history.pushState(null, '', '#home'); // Reset jebakan agar tidak langsung keluar
+        } else {
+            // 3. Jika sudah murni di Home, baru buka modal konfirmasi keluar
+            openExitModal(); 
+            history.pushState(null, '', '#home'); // Tahan state agar aplikasi tidak tertutup paksa
+        }
+        return; 
+    }
+    // ----------------------------------------------------
+
+    let page = hash.replace('#', '') || 'home'; 
+    switchTab(page); 
 });
 
 window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
@@ -1306,65 +1313,30 @@ function renderJadwalDays(activeDay) {
 }
 
 async function loadJadwalData(dayIndex) {
-    const container = document.getElementById('sched-list-container');
-    container.innerHTML = '<div style="text-align:center; padding:50px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Sinkronisasi Jadwal Ongoing...</div></div>';
+    const container = document.getElementById('sched-list-container'); 
+    if (!window.cachedScheduleData) { loader(true); }
 
     try {
-        // STRATEGI: Ambil 4 halaman sekaligus dari /latest untuk stok data ongoing yang melimpah
-        let allOngoing = [];
-        const pages = [1, 2, 3, 4]; 
+        let data;
+        if (window.cachedScheduleData) { data = window.cachedScheduleData; } 
+        else { const res = await fetchTimeout(`${API_BASE}/latest`, 10000); data = await res.json(); if(!data || data.length === 0) throw new Error("No data"); window.cachedScheduleData = data; }
 
-        const results = await Promise.all(
-            pages.map(p => fetchTimeout(`${API_BASE}/latest?page=${p}`, 10000).then(r => r.json()))
-        );
-        
-        results.forEach(data => { if(Array.isArray(data)) allOngoing.push(...data); });
+        let pseudoRandom = (seed) => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
+        let todaysAnime = data.filter((_, idx) => pseudoRandom(dayIndex * 10 + idx) > 0.4);
+        todaysAnime.forEach((anime, idx) => { let jam = Math.floor(pseudoRandom(dayIndex * 20 + idx) * 24); let menit = Math.floor(pseudoRandom(dayIndex * 30 + idx) * 60); anime.releaseTime = `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}`; anime.releaseHour = jam; });
+        todaysAnime.sort((a, b) => b.releaseHour - a.releaseHour); 
 
-        // Filter: Buang anime yang sudah Tamat/Completed
-        allOngoing = removeDuplicates(allOngoing, 'url').filter(a => {
-            const badge = getEpBadge(a).toLowerCase();
-            return !badge.includes('tamat') && !badge.includes('completed');
-        });
-
-        if(allOngoing.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;">Jadwal sedang diperbarui oleh server.</div>`;
-            return;
-        }
-
-        // Distribusikan anime ke 7 hari secara konsisten
-        let todaysAnime = allOngoing.filter((_, idx) => idx % 7 === dayIndex);
-
-        let html = '';
+        let html = ''; let currentHour = new Date().getHours(); let isToday = dayIndex === new Date().getDay();
         todaysAnime.forEach((anime, idx) => {
-            let posterImg = getHighRes(anime.image); // Gunakan logika poster baru
-            let epBadge = getEpBadge(anime);
-            let score = anime.score || anime.rating || (7.8 + (Math.random() * 1.2)).toFixed(2);
-            
-            // Jam rilis rapi (16:00 - 23:00)
-            let hour = 16 + Math.floor(idx / 2);
-            let minute = (idx % 2 === 0) ? "00" : "30";
-            let fakeTime = `${String(hour).padStart(2, '0')}:${minute}`;
-
-            html += `
-            <div class="sched-card" onclick="loadDetail('${anime.url}')">
-                <div class="sched-time">${fakeTime}</div>
-                <img src="${posterImg}" class="sched-img" onerror="this.src='https://placehold.co/70x110/1a1a1a/3b82f6?text=Anime'">
-                <div class="sched-info">
-                    <div class="sched-title">${anime.title}</div>
-                    <div class="sched-ep" style="color: #3b82f6; font-weight: 800;">${epBadge}</div>
-                    <div class="sched-stats">
-                        <span style="color:#fbbf24;">⭐ ${score}</span>
-                        <span style="margin-left:8px; color:#10b981;">• Baru Update</span>
-                    </div>
-                    <div class="sched-status"><span class="status-done">Sedang Tayang</span></div>
-                </div>
-            </div>`;
+            let isReleased = isToday ? (anime.releaseHour <= currentHour) : (dayIndex < new Date().getDay());
+            let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
+            let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
+            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
         });
-
-        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Belum ada jadwal untuk hari ini.</div>`;
-    } catch(e) {
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Periksa koneksi internet.</div>`;
-    }
+        if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
+        container.innerHTML = html;
+    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Server sedang sibuk.</div>`; }
+    loader(false);
 }
 
 function showUpdateNotification(updates) {
