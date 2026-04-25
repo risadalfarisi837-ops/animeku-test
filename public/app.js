@@ -1159,21 +1159,21 @@ window.addEventListener('popstate', (e) => {
     let hash = window.location.hash; 
     let p = document.getElementById('video-player'); 
     
-    // Matikan video kalau keluar dari halaman tontonan
     if (p && hash !== '#watch') { p.src = ''; }
 
-    // Jika mentok sampai awal history (#trap), cegah keluar & buka modal
+    // Jika user menekan back sampai ke ujung (#trap atau kosong)
     if (hash === '#trap' || hash === '') { 
-        switchTab('home'); // Paksa layar belakang jadi menu utama
+        // Pastikan halaman yang aktif adalah 'home' sebelum modal muncul agar tidak blank
+        switchTab('home'); 
         openExitModal(); 
-        history.pushState(null, '', '#home'); // Tahan aplikasi biar nggak tertutup
+        // Tahan state di #home supaya tidak langsung keluar aplikasi
+        history.pushState(null, '', '#home'); 
         return; 
     }
     
     let page = hash.replace('#', '') || 'home'; 
 
-    // === SOLUSI ANTI BLANK KE-2 ===
-    // Kalau hash-nya nggak dikenal (misal error #undefined), kembalikan ke home!
+    // Cek apakah elemen halaman tujuannya ada, kalau tidak ada (seperti #trap), balikkan ke home
     if(!document.getElementById(page + '-view')) {
         page = 'home';
     }
@@ -1406,13 +1406,12 @@ function initApp() {
     
     let currentHash = window.location.hash || '#home';
 
-    // === SOLUSI ANTI BLANK SAAT DI-REFRESH ===
-    // Mengembalikan user ke home dengan aman jika terjebak di URL #trap
+    // PENGAMAN UTAMA: Jika nyangkut di #trap saat refresh, paksa ke home agar tidak blank hitam
     if (currentHash === '#trap') {
         currentHash = '#home';
+        history.replaceState(null, '', '#home');
     }
 
-    // === MENGUNCI HISTORY SAAT APP PERTAMA KALI DIBUKA ===
     if (!sessionStorage.getItem('animeku_trap')) {
         history.replaceState(null, '', '#trap');
         history.pushState(null, '', currentHash);
