@@ -234,37 +234,72 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
 .fav-views { font-size: 10px; color: #a1a1aa; margin-top: 8px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
 .fav-title { font-size: 13px; color: #fff; margin-top: 4px; line-height: 1.3; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #050505; display: flex; border-top: 1px solid #111; z-index: 1000; }
-/* === ANIMASI BOTTOM NAV ALA TIKTOK/IG === */
+/* === ANIMASI BOTTOM NAV BUBBLE (TEKS MUNCUL) === */
+.bottom-nav { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    background: rgba(5, 5, 5, 0.95); /* Sedikit blur estetik */
+    backdrop-filter: blur(10px);
+    display: flex; 
+    justify-content: space-evenly; /* Mengatur jarak otomatis */
+    align-items: center; 
+    border-top: 1px solid #111; 
+    z-index: 1000; 
+    padding: 10px; /* Beri ruang agar gelembung tidak mentok */
+}
+
 .nav-item { 
-    flex: 1; 
-    padding: 12px 0; 
+    flex: unset !important; /* Paksa hilangkan ukuran bawaan dari HTML */
     background: transparent; 
     border: none; 
     display: flex; 
-    flex-direction: column; 
+    flex-direction: row; /* Sejajarkan Ikon & Teks menyamping */
     align-items: center; 
     justify-content: center; 
-    color: #555; 
+    color: #888; 
     cursor: pointer; 
-    /* Transisi cubic-bezier bikin efek mumbul/bouncy */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2); 
+    padding: 10px 16px; 
+    border-radius: 30px; /* Bikin bentuknya seperti pil/kapsul membulat */
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2); /* Animasi mumbul */
     font-family: 'Outfit', sans-serif; 
-    font-size: 11px; 
-    font-weight: 700;
-    /* Hilangkan kotak bayangan biru bawaan HP Android saat di-tap */
+    font-weight: 800;
     -webkit-tap-highlight-color: transparent; 
 }
 
-/* Animasi khusus untuk Icon SVG-nya */
 .nav-item svg { 
-    margin-bottom: 4px; 
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2); 
+    margin-bottom: 0 !important; 
+    flex-shrink: 0;
+    transition: transform 0.3s ease; 
 }
 
-/* Warna saat menu sedang aktif (biru) */
+/* Sembunyikan Teks Secara Default (Lebar 0, Transparan) */
+.nav-item span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    font-size: 14px;
+    white-space: nowrap;
+    margin-left: 0;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+}
+
+/* SAAT DITEKAN/AKTIF: Gelembung Biru & Teks Keluar */
 .nav-item.active { 
     color: #3b82f6; 
+    background: rgba(59, 130, 246, 0.15); /* Efek gelembung */
+}
+
+.nav-item.active span {
+    max-width: 100px; /* Buka ruang untuk teks */
+    opacity: 1;
+    margin-left: 8px; /* Beri jarak antara SVG dan Teks */
+}
+
+/* Efek menciut saat jari menyentuh layar */
+.nav-item:active {
+    transform: scale(0.9);
 }
 
 /* Bikin Icon sedikit lebih besar kalau menu sedang aktif */
