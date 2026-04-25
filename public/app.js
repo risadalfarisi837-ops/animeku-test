@@ -176,9 +176,20 @@ function updateDevUI() {
                 const userFoto = data.foto || 'https://placehold.co/100'; 
                 const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
                 
-                let roleBadgeClass = 'badge-member'; let roleName = role;
-                if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
-                else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
+                let roleBadgeClass = 'badge-member'; 
+                let roleName = role;
+                let roleClickAction = ''; // Default tidak bisa diklik
+
+                if(role === 'Developer') { 
+                    roleBadgeClass = 'badge-dev-anim'; 
+                    roleName = 'DEV'; 
+                    // BISA DIKLIK UNTUK BUKA PANEL
+                    roleClickAction = `onclick="event.stopPropagation(); openDevModal('${shortUid}')" style="cursor:pointer;"`;
+                } 
+                else if(role === 'Wibu Premium' || level >= 50) { 
+                    roleBadgeClass = 'badge-premium-anim'; 
+                    roleName = role !== 'Member' ? role : 'Wibu Premium'; 
+                } 
                 
                 const rankInfo = getRankInfo(level); 
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
@@ -195,12 +206,6 @@ function updateDevUI() {
                 let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
                 let userKoin = data.koin || 0; 
 
-                // Tombol Dev Panel
-                let devPanelHtml = '';
-                if (role === 'Developer') {
-                    devPanelHtml = `<button onclick="openDevModal('${shortUid}')" style="margin: 0 20px 10px 20px; width:calc(100% - 40px); background:linear-gradient(90deg, #dc2626, #7f1d1d); border:1px solid #ef4444; color:#fff; padding:12px; border-radius:12px; font-weight:900; font-size:14px; cursor:pointer; position: relative; z-index: 50; box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);">⚡ Buka Panel God Mode</button>`;
-                }
-
                 container.innerHTML = `
                     <div style="position: relative; width: 100%; z-index: 1;">
                         <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; z-index: 9999;">
@@ -212,9 +217,9 @@ function updateDevUI() {
                                 ${decoHtml}
                             </div>
                             <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer;">${userName}</div>
-                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
-                                <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
-                                <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
+                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;">
+                                <span class="c-badge ${roleBadgeClass}" ${roleClickAction}>${roleName}</span>
+                                <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">${rankInfo.icon} Lvl. ${level}</span>
                                 <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
                             </div>
                         </div>
@@ -227,10 +232,8 @@ function updateDevUI() {
                         <div id="ptab-all" class="ptab-content">${historyHtml}</div>
                         <div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;"></div>
                         <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
-                        
-                        ${devPanelHtml}
 
-                        <button onclick="openLogoutModal()" style="margin: 0 20px 20px 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
+                        <button onclick="openLogoutModal()" style="margin: 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
                     </div>
                 `;
             } catch(errorProfile) { 
