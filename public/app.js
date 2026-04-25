@@ -1154,7 +1154,6 @@ window.postReply = function(parentID) {
 
 window.allowExitApp = false;
 
-// 1. POPSTATE LISTENER: Menangkap aksi tombol back (geser layar / tombol fisik)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return; 
     let hash = window.location.hash; 
@@ -1165,18 +1164,23 @@ window.addEventListener('popstate', (e) => {
 
     // Jika mentok sampai awal history (#trap), cegah keluar & buka modal
     if (hash === '#trap' || hash === '') { 
-        switchTab('home'); // <--- INI KUNCINYA: Pastikan layar Home dirender!
+        switchTab('home'); // Paksa layar belakang jadi menu utama
         openExitModal(); 
         history.pushState(null, '', '#home'); // Tahan aplikasi biar nggak tertutup
         return; 
     }
     
-    // Navigasi tab seperti biasa
     let page = hash.replace('#', '') || 'home'; 
+
+    // === SOLUSI ANTI BLANK KE-2 ===
+    // Kalau hash-nya nggak dikenal (misal error #undefined), kembalikan ke home!
+    if(!document.getElementById(page + '-view')) {
+        page = 'home';
+    }
+    
     switchTab(page); 
 });
 
-// 2. FUNGSI TOMBOL PANAH DALAM APP (Lebih aman pakai ganti hash langsung)
 window.goHome = function() { 
     if (window.location.hash !== '#home') { 
         window.location.hash = 'home'; 
@@ -1188,7 +1192,7 @@ window.backToDetail = function() {
     if(typeof window.renderDetailEpisodeUI === 'function') window.renderDetailEpisodeUI();
     
     if (window.location.hash === '#watch') { 
-        history.back(); // Jika sedang nonton, aman pakai history.back
+        history.back(); 
     } else { 
         window.location.hash = 'detail'; 
     } 
@@ -1400,10 +1404,16 @@ function initApp() {
     injectLogoutModal(); 
     injectTransactionModal(); 
     
-    // === MENGUNCI HISTORY SAAT APP PERTAMA KALI DIBUKA ===
     let currentHash = window.location.hash || '#home';
+
+    // === SOLUSI ANTI BLANK SAAT DI-REFRESH ===
+    // Mengembalikan user ke home dengan aman jika terjebak di URL #trap
+    if (currentHash === '#trap') {
+        currentHash = '#home';
+    }
+
+    // === MENGUNCI HISTORY SAAT APP PERTAMA KALI DIBUKA ===
     if (!sessionStorage.getItem('animeku_trap')) {
-        // Buat pondasi history bawah sadar sebagai 'jebakan'
         history.replaceState(null, '', '#trap');
         history.pushState(null, '', currentHash);
         sessionStorage.setItem('animeku_trap', 'true');
