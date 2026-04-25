@@ -461,11 +461,22 @@ function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
-        let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; 
-        let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
+        let currentExp = d.exp || 0;
+        let currentLvl = d.level || 1;
+        
+        // SINKRONISASI: Jika EXP ketinggalan jauh dari Level, paksa EXP naik dulu
+        let minExpForLevel = (currentLvl - 1) * 200;
+        if (currentExp < minExpForLevel) {
+            currentExp = minExpForLevel;
+        }
+
+        let nExp = currentExp + amount; 
+        let nLvl = Math.floor(nExp / 200) + 1; 
+        let isLevelUp = nLvl > currentLvl;
         
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
-        let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        let currentLevelProgress = nExp % 200; 
+        let progressPercent = Math.floor((currentLevelProgress / 200) * 100);
         showXPModal(amount, nLvl, progressPercent, isLevelUp);
     });
 }
