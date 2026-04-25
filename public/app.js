@@ -1165,6 +1165,7 @@ window.addEventListener('popstate', (e) => {
 
     // Jika mentok sampai awal history (#trap), cegah keluar & buka modal
     if (hash === '#trap' || hash === '') { 
+        switchTab('home'); // <--- INI KUNCINYA: Pastikan layar Home dirender!
         openExitModal(); 
         history.pushState(null, '', '#home'); // Tahan aplikasi biar nggak tertutup
         return; 
