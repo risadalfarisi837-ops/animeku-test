@@ -2145,6 +2145,66 @@ document.onkeydown = function(e) {
 // ==========================================
 // FITUR GOD MODE (KHUSUS DEVELOPER)
 // ==========================================
+window.injectDevModal = function() {
+    if(document.getElementById('dev-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'dev-modal-injected';
+    div.innerHTML = `
+        <div id="devModalOverlay" class="modal-overlay" onclick="closeDevModal()" style="display:none; z-index:9999998; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px);"></div>
+        <div id="devModal" class="bottom-sheet" style="display:none; z-index:9999999; padding:25px 20px; background:#0a0a0a; border-top: 2px solid #3b82f6; max-width:500px; margin:0 auto; left:0; right:0; border-radius: 24px 24px 0 0;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #1a1a1a; padding-bottom:15px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:rgba(59, 130, 246, 0.1); padding:8px; border-radius:10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.7a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.7z"></path></svg>
+                    </div>
+                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900; letter-spacing:0.5px;">Panel God Mode</h3>
+                </div>
+                <button onclick="closeDevModal()" style="background:rgba(255,255,255,0.05); border:none; color:#888; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <p style="font-size:12px; color:#666; margin-bottom:20px; text-align:center;">Kelola data user dengan akses penuh Developer.</p>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; color:#aaa; font-size:11px; font-weight:800; margin-bottom:8px; margin-left:5px; text-transform:uppercase;">Target UID</label>
+                <input type="text" id="dev-uid" placeholder="#XXXXXX" style="width:100%; padding:14px; background:#111; color:#fff; border:1px solid #333; border-radius:15px; box-sizing:border-box; outline:none; font-family:monospace; font-weight:bold; font-size:15px; transition:0.3s;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 10px rgba(59,130,246,0.2)';" onblur="this.style.borderColor='#333'; this.style.boxShadow='none';">
+            </div>
+            
+            <div style="display:flex; gap:12px; margin-bottom:15px;">
+                <div style="flex:1;">
+                    <label style="display:block; color:#aaa; font-size:11px; font-weight:800; margin-bottom:8px; margin-left:5px; text-transform:uppercase;">Set Koin</label>
+                    <input type="number" id="dev-koin" placeholder="0" style="width:100%; padding:14px; background:#111; color:#facc15; border:1px solid #333; border-radius:15px; box-sizing:border-box; outline:none; font-weight:800;">
+                </div>
+                <div style="flex:1;">
+                    <label style="display:block; color:#aaa; font-size:11px; font-weight:800; margin-bottom:8px; margin-left:5px; text-transform:uppercase;">Set Level</label>
+                    <input type="number" id="dev-level" placeholder="1" style="width:100%; padding:14px; background:#111; color:#3b82f6; border:1px solid #333; border-radius:15px; box-sizing:border-box; outline:none; font-weight:800;">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; color:#aaa; font-size:11px; font-weight:800; margin-bottom:8px; margin-left:5px; text-transform:uppercase;">Set EXP Points</label>
+                <input type="number" id="dev-exp" placeholder="0" style="width:100%; padding:14px; background:#111; color:#fff; border:1px solid #333; border-radius:15px; box-sizing:border-box; outline:none; font-weight:bold;">
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display:block; color:#aaa; font-size:11px; font-weight:800; margin-bottom:8px; margin-left:5px; text-transform:uppercase;">Ubah Role Akun</label>
+                <select id="dev-role" style="width:100%; padding:14px; background:#111; color:#fff; border:1px solid #333; border-radius:15px; box-sizing:border-box; outline:none; font-weight:bold; cursor:pointer;">
+                    <option value="">-- Biarkan Tetap --</option>
+                    <option value="Member" style="background:#111;">Member (Wibu Biasa)</option>
+                    <option value="Wibu Premium" style="background:#111;">Wibu Premium</option>
+                    <option value="Developer" style="background:#111;">Developer</option>
+                </select>
+            </div>
+            
+            <button onclick="executeGodMode()" style="width:100%; padding:16px; background:linear-gradient(90deg, #3b82f6, #1d4ed8); color:#fff; border:none; border-radius:18px; font-weight:900; font-size:14px; cursor:pointer; box-shadow:0 10px 20px rgba(59, 130, 246, 0.3); transition:0.3s; text-transform:uppercase; letter-spacing:1px;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+                ⚡ Terapkan Perubahan
+            </button>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
 window.openDevModal = function(targetUid = '') {
     window.injectDevModal();
     if(targetUid) document.getElementById('dev-uid').value = targetUid;
