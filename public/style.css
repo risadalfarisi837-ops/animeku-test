@@ -175,11 +175,12 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
 
 /* MASTER - Royal Purple/Gold Solid */
 .badge-lvl-master { 
-    background: linear-gradient(135deg, #9b59b6, #8e44ad) !important; 
-    color: #ffffff !important; 
-    border: 1px solid #ec4899 !important; 
-    animation: shineMetal 1.5s infinite linear, masterGlow 3s infinite ease-in-out !important;
-    box-shadow: 0 0 20px rgba(236, 72, 153, 0.7);
+    background: linear-gradient(90deg, #7f1d1d, #ef4444, #f97316) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.8) !important;
+    animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important;
 }
 
 /* MYTHIC - Api Merah Menyala */
