@@ -120,67 +120,76 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
     100% { box-shadow: 0 0 16px rgba(251, 191, 36, 0.9); transform: scale(1.02); } 
 }
 
-/* === FULL SOLID PREMIUM RANK COLORS === */
+/* === FULL PREMIUM SOLID RANK COLORS (ALA MYTHIC) === */
 
-/* STONE - Abu-abu Gelap Solid */
-.badge-lvl-stone { 
-    background: linear-gradient(135deg, #444444, #111111) !important; 
-    color: #ffffff !important; 
-    border: 1px solid #666666 !important; 
-    box-shadow: 0 0 10px rgba(0,0,0,0.8);
-}
-
-/* BRONZE - Tembaga Solid */
-.badge-lvl-bronze { 
-    background: linear-gradient(135deg, #cd7f32, #8b4513) !important; 
-    color: #ffffff !important; 
-    border: 1px solid #fbbf24 !important; 
-    box-shadow: 0 0 10px rgba(180, 83, 9, 0.5);
-}
-
-/* SILVER - Perak/Chrome Solid */
-.badge-lvl-silver { 
-    background: linear-gradient(135deg, #bdc3c7, #7f8c8d) !important; 
-    color: #0f172a !important; 
-    border: 1px solid #ffffff !important; 
-    box-shadow: 0 0 10px rgba(148, 163, 184, 0.5);
-}
-
-/* GOLD - Emas 24K Solid */
-.badge-lvl-gold { 
-    background: linear-gradient(135deg, #f1c40f, #f39c12) !important; 
-    color: #ffffff !important; 
-    border: 1px solid #fef08a !important; 
-    animation: shineMetal 2s infinite linear;
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
-}
-
-/* EMERALD - Hijau Kristal Solid */
-.badge-lvl-emerald { 
-    background: linear-gradient(135deg, #2ecc71, #27ae60) !important; 
-    color: #ffffff !important; 
-    border: 1px solid #6ee7b7 !important; 
-    animation: shineMetal 2s infinite linear, emeraldPulse 2s infinite alternate !important;
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
-}
-
-/* DIAMOND - Biru Berlian Solid */
-.badge-lvl-diamond { 
-    background: linear-gradient(135deg, #3498db, #2980b9) !important; 
-    color: #ffffff !important; 
-    border: 1px solid #bfdbfe !important; 
-    animation: shineMetal 2s infinite linear, pulseGlowCyan 2s infinite alternate !important;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
-}
-
-/* MASTER - Royal Purple/Gold Solid */
-.badge-lvl-master { 
-    background: linear-gradient(90deg, #7f1d1d, #ef4444, #f97316) !important; 
+/* STONE - Dark Onyx Deep */
+.badge-lvl-stone, .rank-icon-stone { 
+    background: linear-gradient(90deg, #444, #111, #444) !important; 
     background-size: 200% 100% !important;
     color: #fff !important; 
     border: none !important; 
-    box-shadow: 0 0 30px rgba(239, 68, 68, 0.8) !important;
-    animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8) !important;
+    animation: shimmerPremium 3s infinite linear !important;
+}
+
+/* BRONZE - Copper Blaze */
+.badge-lvl-bronze, .rank-icon-bronze { 
+    background: linear-gradient(90deg, #92400e, #d97706, #92400e) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 20px rgba(180, 83, 9, 0.6) !important;
+    animation: shimmerPremium 2.5s infinite linear !important;
+}
+
+/* SILVER - Silver Chrome */
+.badge-lvl-silver, .rank-icon-silver { 
+    background: linear-gradient(90deg, #94a3b8, #f1f5f9, #94a3b8) !important; 
+    background-size: 200% 100% !important;
+    color: #0f172a !important; 
+    border: none !important; 
+    box-shadow: 0 0 20px rgba(148, 163, 184, 0.6) !important;
+    animation: shimmerPremium 2.5s infinite linear !important;
+}
+
+/* GOLD - 24K Radiant Gold */
+.badge-lvl-gold, .rank-icon-gold { 
+    background: linear-gradient(90deg, #b45309, #fbbf24, #b45309) !important; 
+    background-size: 200% 100% !important;
+    color: #451a03 !important; 
+    border: none !important; 
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.7) !important;
+    animation: shimmerPremium 2s infinite linear, pulseGlowGold 1.5s infinite alternate !important;
+}
+
+/* EMERALD - Crystal Green Jamrud */
+.badge-lvl-emerald, .rank-icon-emerald { 
+    background: linear-gradient(90deg, #064e3b, #10b981, #064e3b) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.7) !important;
+    animation: shimmerPremium 2s infinite linear, emeraldPulse 1.5s infinite alternate !important;
+}
+
+/* DIAMOND - Blue Diamond Sparkle */
+.badge-lvl-diamond, .rank-icon-diamond { 
+    background: linear-gradient(90deg, #1d4ed8, #60a5fa, #1d4ed8) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.8) !important;
+    animation: shimmerPremium 2s infinite linear, pulseGlowCyan 1.5s infinite alternate !important;
+}
+
+/* MASTER - Royal Purple-Gold */
+.badge-lvl-master, .rank-icon-master { 
+    background: linear-gradient(90deg, #7e22ce, #e9d5ff, #7e22ce) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.8) !important;
+    animation: shimmerPremium 1.5s infinite linear, masterGlow 2s infinite alternate !important;
 }
 
 /* MYTHIC - Api Merah Menyala */
