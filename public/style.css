@@ -234,148 +234,77 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
 .fav-views { font-size: 10px; color: #a1a1aa; margin-top: 8px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
 .fav-title { font-size: 13px; color: #fff; margin-top: 4px; line-height: 1.3; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* === ANIMASI BOTTOM NAV CLEAN & BOUNCY (SEPERTI DI VIDEO) === */
-.bottom-nav { 
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    width: 100%; 
-    background: rgba(5, 5, 5, 0.95); /* Sedikit transparan/blur ala iOS */
-    backdrop-filter: blur(10px);
-    display: flex; 
-    border-top: 1px solid #111; 
-    z-index: 1000; 
-    padding-bottom: env(safe-area-inset-bottom); /* Aman untuk HP modern tanpa tombol fisik */
+.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #050505; display: flex; border-top: 1px solid #111; z-index: 1000; }
+.nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
+.nav-item svg { margin-bottom: 4px; }
+.nav-item.active { color: #3b82f6; }
+
+/* === TAMPILAN WIDE BUBBLE (LEBAR, LEGA, TAPI TETAP MEMBULAT) === */
+
+.sched-card, 
+.profile-list-item, 
+.profile-comment-box {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    border-radius: 16px !important; 
+    width: calc(100% - 16px) !important; 
+    box-sizing: border-box !important;
 }
 
-.nav-item { 
-    flex: 1; 
-    padding: 12px 0; 
-    background: transparent; 
-    border: none; 
-    display: flex; 
-    flex-direction: column; /* Ikon di atas, teks di bawah */
-    align-items: center; 
-    justify-content: center; 
-    color: #666; /* Warna ikon/teks saat tidak aktif */
-    cursor: pointer; 
-    transition: color 0.3s ease; /* Transisi pergantian warna halus */
-    font-family: 'Outfit', sans-serif; 
-    font-size: 11px; 
-    font-weight: 700;
-    -webkit-tap-highlight-color: transparent; /* Hilangkan kotak biru Android saat tap */
+div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    border-radius: 16px !important; 
+    width: calc(100% - 16px) !important;
+    box-sizing: border-box !important;
 }
 
-.nav-item svg { 
-    margin-bottom: 4px; 
-    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1.2); /* Animasi mumbul khusus di ikon */
+#episode-list-detail-container {
+    margin-left: -4px !important; 
+    margin-right: -4px !important;
+    width: calc(100% + 8px) !important;
 }
 
-/* Warna saat menu sedang aktif (biru) */
-.nav-item.active { 
-    color: #3b82f6; 
-}
-
-/* EFEK TAP: Ikon menciut sedikit saat layar ditekan */
-.nav-item:active svg {
-    transform: scale(0.8);
-}
-
-.nav-item svg { 
-    margin-bottom: 0 !important; 
-    flex-shrink: 0;
-    transition: transform 0.3s ease; 
-}
-
-/* Sembunyikan Teks Secara Default (Lebar 0, Transparan) */
-.nav-item span {
-    max-width: 0;
-    opacity: 0;
-    overflow: hidden;
-    font-size: 14px;
-    white-space: nowrap;
-    margin-left: 0;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-}
-
-/* SAAT DITEKAN/AKTIF: Gelembung Biru & Teks Keluar */
-.nav-item.active { 
-    color: #3b82f6; 
-    background: rgba(59, 130, 246, 0.15); /* Efek gelembung */
-}
-
-.nav-item.active span {
-    max-width: 100px; /* Buka ruang untuk teks */
-    opacity: 1;
-    margin-left: 8px; /* Beri jarak antara SVG dan Teks */
-}
-
-/* Efek menciut saat jari menyentuh layar */
-.nav-item:active {
-    transform: scale(0.9);
-}
-
-/* Bikin Icon sedikit lebih besar kalau menu sedang aktif */
-.nav-item.active svg {
-    transform: scale(1.15);
-}
-
-/* INI INTI ANIMASINYA: Mengecil saat layar HP ditekan (Tap) */
-.nav-item:active {
-    transform: scale(0.85);
-    opacity: 0.8;
+div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
+    border-radius: 16px !important; 
+    border: 1px solid #2c2c2e !important; 
 }
 
 /* ==========================================
-   TAMPILAN KARTU UNIVERSAL (KONSISTEN)
+   EFEK RIPPLE (GELOMBANG AIR) KHAS ANDROID
    ========================================== */
 
-/* 1. Menyeragamkan semua kartu (Jadwal, History, Profil, Komentar, Episode) */
-.sched-card, 
-.timeline-card, 
-.profile-list-item, 
-.comment-item,
-div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"], /* Target khusus kotak komentar */
-div[style*="justify-content:space-between; align-items:center; padding:15px;"] /* Target khusus kotak daftar episode */ {
-    background: #1c1c1e !important;
-    border: 1px solid #2c2c2e !important;
-    border-radius: 16px !important; /* Lengkungan seragam semua */
-    margin-left: 12px !important;   /* Jarak kiri seragam */
-    margin-right: 12px !important;  /* Jarak kanan seragam */
-    width: calc(100% - 24px) !important; /* Lebar otomatis pas dengan layar */
-    box-sizing: border-box !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important; /* Efek bayangan halus merata */
-    transition: transform 0.2s ease, border-color 0.2s ease !important;
+/* 1. Kunci elemen biar gelombangnya gak bocor keluar garis */
+.scroll-card, .recent-card, .sched-card, .timeline-card, 
+.action-btn, .hero-btn, .nav-item, .ep-square, .profile-list-item {
+    position: relative;
+    overflow: hidden;
 }
 
-/* 2. Efek saat ditekan (berlaku untuk semua kartu) */
-.sched-card:active, 
-.timeline-card:active, 
-.profile-list-item:active,
-div[style*="justify-content:space-between; align-items:center; padding:15px;"]:active {
-    transform: scale(0.98) !important;
-    border-color: #3b82f6 !important;
+/* 2. Siapkan elemen gelombang gaib (transparan) */
+.scroll-card::after, .recent-card::after, .sched-card::after, .timeline-card::after, 
+.action-btn::after, .hero-btn::after, .nav-item::after, .ep-square::after, .profile-list-item::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    /* Bikin bentuk lingkaran putih memudar */
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
 }
 
-/* 3. Menyeragamkan gambar di dalam kartu */
-.sched-img, 
-.timeline-img, 
-.pli-img {
-    border-radius: 10px !important; /* Gambar di dalam kotak juga punya lengkungan seragam */
-    border: 1px solid #333 !important;
-}
-
-/* 4. Fix khusus agar list episode di halaman detail tidak nabrak layar */
-#episode-list-detail-container {
-    margin-left: -2px !important; 
-    margin-right: -2px !important;
-    width: calc(100% + 4px) !important;
-}
-
-/* 5. Menyeragamkan sudut poster di halaman Home & Subscribe */
-.scroll-card-img, 
-.recent-img-box, 
-.fav-card-img {
-    border-radius: 12px !important;
-    border: 1px solid #2c2c2e !important;
+/* 3. Munculkan kilatan gelombang PAS DITAHAN / DIPENCET */
+.scroll-card:active::after, .recent-card:active::after, .sched-card:active::after, .timeline-card:active::after, 
+.action-btn:active::after, .hero-btn:active::after, .nav-item:active::after, .ep-square:active::after, .profile-list-item:active::after {
+    transform: scale(0, 0);
+    opacity: 0.25; /* Tingkat kecerahan kilat putihnya (0.25 pas, nggak terlalu silau) */
+    transition: 0s;
 }
