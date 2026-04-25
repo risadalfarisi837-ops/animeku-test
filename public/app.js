@@ -1152,50 +1152,20 @@ window.postReply = function(parentID) {
 };
 
 
-window.allowExitApp = false;
-
+window.allowExitApp = false; window.historyTrapSet = false;
+function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
+window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
 window.addEventListener('popstate', (e) => { 
-    if (window.allowExitApp) return; 
-    let hash = window.location.hash; 
-    let p = document.getElementById('video-player'); 
-    
-    if (p && hash !== '#watch') { p.src = ''; }
-
-    // Jika user menekan back sampai ke ujung (#trap atau kosong)
-    if (hash === '#trap' || hash === '') { 
-        // Pastikan halaman yang aktif adalah 'home' sebelum modal muncul agar tidak blank
-        switchTab('home'); 
-        openExitModal(); 
-        // Tahan state di #home supaya tidak langsung keluar aplikasi
-        history.pushState(null, '', '#home'); 
-        return; 
-    }
-    
-    let page = hash.replace('#', '') || 'home'; 
-
-    // Cek apakah elemen halaman tujuannya ada, kalau tidak ada (seperti #trap), balikkan ke home
-    if(!document.getElementById(page + '-view')) {
-        page = 'home';
-    }
-    
-    switchTab(page); 
+    if (window.allowExitApp) return; let hash = window.location.hash; let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
+    if (hash === '#trap' || hash === '') { openExitModal(); history.pushState(null, '', '#home'); return; }
+    let page = hash.replace('#', '') || 'home'; switchTab(page); 
 });
 
-window.goHome = function() { 
-    if (window.location.hash !== '#home') { 
-        window.location.hash = 'home'; 
-    } 
-};
-
+window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
 window.backToDetail = function() { 
     window.currentPlayingAnime = null;
-    if(typeof window.renderDetailEpisodeUI === 'function') window.renderDetailEpisodeUI();
-    
-    if (window.location.hash === '#watch') { 
-        history.back(); 
-    } else { 
-        window.location.hash = 'detail'; 
-    } 
+    window.renderDetailEpisodeUI();
+    if (window.location.hash === '#watch') { history.back(); } else { switchTab('detail'); } 
 };
 
 window.injectExitModal = function() {
@@ -1402,25 +1372,9 @@ function initApp() {
     updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal(); 
     injectChangeNameModal(); 
     injectLogoutModal(); 
-    injectTransactionModal(); 
-    
-    let currentHash = window.location.hash || '#home';
-
-    // PENGAMAN UTAMA: Jika nyangkut di #trap saat refresh, paksa ke home agar tidak blank hitam
-    if (currentHash === '#trap') {
-        currentHash = '#home';
-        history.replaceState(null, '', '#home');
-    }
-
-    if (!sessionStorage.getItem('animeku_trap')) {
-        history.replaceState(null, '', '#trap');
-        history.pushState(null, '', currentHash);
-        sessionStorage.setItem('animeku_trap', 'true');
-    } else if (window.location.hash === '') {
-        history.replaceState(null, '', '#home');
-    }
-
-    switchTab(currentHash.replace('#', '')); 
+    injectTransactionModal(); // <--- WAJIB ADA BIAR KONFIRMASINYA MUNCUL
+    if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
+    switchTab('home'); 
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
 
