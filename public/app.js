@@ -237,7 +237,46 @@ function updateDevUI() {
                         </div>
                         <div class="profile-tabs" style="position: relative; z-index: 10;"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
                         <div id="ptab-all" class="ptab-content" style="position: relative; z-index: 10;">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px; position: relative; z-index: 10;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none; position: relative; z-index: 10;">${historyHtml}</div>
-                        <button onclick="openLogoutModal()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; position: relative; z-index: 50;">Keluar Akun</button>
+                                       let userKoin = data.koin || 0; 
+
+                // === TAMBAHAN TOMBOL GOD MODE ===
+                let devPanelHtml = '';
+                if (role === 'Developer') {
+                    devPanelHtml = `<button onclick="openDevModal('${shortUid}')" style="margin: 0 20px 10px 20px; width:calc(100% - 40px); background:linear-gradient(90deg, #dc2626, #7f1d1d); border:1px solid #ef4444; color:#fff; padding:12px; border-radius:12px; font-weight:900; font-size:14px; cursor:pointer; position: relative; z-index: 50; box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);">⚡ Buka Panel God Mode</button>`;
+                }
+
+                // FIX ANTI ERROR KLIK:
+                container.innerHTML = `
+                    <div style="position: relative; width: 100%; z-index: 1;">
+                        
+                        <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 9999; outline: none; user-select: none; -webkit-tap-highlight-color: transparent;" title="Pencet untuk buka Border Shop">
+                            ${userKoin} Koin
+                        </button>
+                        
+                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center; position: relative; z-index: 50;">
+                            <div class="profile-avatar-container" onclick="window.openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px; z-index: 100; user-select: none; -webkit-tap-highlight-color: transparent;">
+                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; position: relative; z-index: 2; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">
+                                ${decoHtml}
+                            </div>
+                            <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer; transition:0.2s; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;" title="Klik untuk ganti nama">${userName}</div>
+                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
+                                <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
+                                <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
+                                <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-stats" style="position: relative; z-index: 10;">
+                            <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                            <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                            <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+                        </div>
+                        <div class="profile-tabs" style="position: relative; z-index: 10;"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
+                        <div id="ptab-all" class="ptab-content" style="position: relative; z-index: 10;">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px; position: relative; z-index: 10;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none; position: relative; z-index: 10;">${historyHtml}</div>
+                        
+                        ${devPanelHtml}
+
+                        <button onclick="openLogoutModal()" style="margin: 0 20px 20px 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; position: relative; z-index: 50;">Keluar Akun</button>
                     </div>
                 `;
             } catch(errorProfile) { console.error(errorProfile); container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`; }
@@ -2105,6 +2144,103 @@ document.onkeydown = function(e) {
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Blokir Ctrl+Shift+C
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Blokir Ctrl+Shift+J
     if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Blokir Ctrl+U (View Source)
+};
+
+// ==========================================
+// FITUR GOD MODE (KHUSUS DEVELOPER)
+// ==========================================
+window.injectDevModal = function() {
+    if(document.getElementById('dev-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'dev-modal-injected';
+    div.innerHTML = `
+        <div id="devModalOverlay" class="modal-overlay" onclick="closeDevModal()" style="display:none; z-index:9999998;"></div>
+        <div id="devModal" class="bottom-sheet" style="z-index:9999999; padding:25px 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+                <h3 style="color:#ef4444; margin:0; font-size:18px;">🛠️ Panel God Mode</h3>
+                <button onclick="closeDevModal()" style="background:transparent; border:none; color:#fff; font-size:16px; cursor:pointer;">✖</button>
+            </div>
+            
+            <p style="font-size:12px; color:#888; margin-bottom:15px;">Edit data user lewat UID (Bisa pakai 6 digit awal saja).</p>
+            
+            <input type="text" id="dev-uid" placeholder="Target UID (Contoh: #A1B2C3)" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #ef4444; border-radius:12px; box-sizing:border-box;">
+            
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="number" id="dev-koin" placeholder="Set Koin" style="flex:1; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
+                <input type="number" id="dev-level" placeholder="Set Level" style="flex:1; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
+            </div>
+            
+            <input type="number" id="dev-exp" placeholder="Set EXP" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
+            
+            <select id="dev-role" style="width:100%; padding:12px; margin-bottom:20px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box; outline:none;">
+                <option value="">-- Jangan Ubah Role --</option>
+                <option value="Member">Member (Wibu Biasa)</option>
+                <option value="Wibu Premium">Wibu Premium</option>
+                <option value="Developer">Developer</option>
+            </select>
+            
+            <button onclick="executeGodMode()" style="width:100%; padding:14px; background:linear-gradient(90deg, #dc2626, #7f1d1d); color:#fff; border:none; border-radius:16px; font-weight:900; font-size:14px; cursor:pointer; box-shadow:0 5px 15px rgba(220, 38, 38, 0.4);">⚡ EKSEKUSI</button>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openDevModal = function(targetUid = '') {
+    window.injectDevModal();
+    if(targetUid) document.getElementById('dev-uid').value = targetUid;
+    document.getElementById('devModalOverlay').style.display = 'block';
+    document.getElementById('devModal').style.display = 'block';
+    setTimeout(() => document.getElementById('devModal').classList.add('show'), 10);
+};
+
+window.closeDevModal = function() {
+    const modal = document.getElementById('devModal');
+    if(modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            document.getElementById('devModalOverlay').style.display = 'none';
+            modal.style.display = 'none';
+        }, 300);
+    }
+};
+
+window.executeGodMode = function() {
+    let uidInput = document.getElementById('dev-uid').value.trim().replace('#', '').toUpperCase();
+    if(!uidInput) return window.showToast('UID Target harus diisi!', 'error');
+
+    let updates = {};
+    let koin = document.getElementById('dev-koin').value;
+    let exp = document.getElementById('dev-exp').value;
+    let lvl = document.getElementById('dev-level').value;
+    let role = document.getElementById('dev-role').value;
+
+    if(koin !== "") updates.koin = parseInt(koin);
+    if(exp !== "") updates.exp = parseInt(exp);
+    if(lvl !== "") updates.level = parseInt(lvl);
+    if(role !== "") updates.role = role;
+
+    if(Object.keys(updates).length === 0) return window.showToast('Isi minimal 1 data yang mau diubah!', 'error');
+
+    // Cari target di Firebase
+    db.ref('users').once('value').then(snap => {
+        let targetFullUid = null;
+        snap.forEach(child => {
+            if(child.key.toUpperCase() === uidInput || child.key.substring(0,6).toUpperCase() === uidInput) {
+                targetFullUid = child.key;
+            }
+        });
+
+        if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
+
+        db.ref('users/' + targetFullUid).update(updates).then(() => {
+            window.showToast('⚡ God Mode Berhasil Diterapkan!', 'success');
+            window.closeDevModal();
+            // Reset form
+            document.getElementById('dev-koin').value = '';
+            document.getElementById('dev-exp').value = '';
+            document.getElementById('dev-level').value = '';
+            document.getElementById('dev-role').value = '';
+        }).catch(err => window.showToast('Gagal: ' + err.message, 'error'));
+    });
 };
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
