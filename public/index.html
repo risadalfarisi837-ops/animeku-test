@@ -142,15 +142,77 @@
         /* WARNA BADGE & EFEK ANIMASI PROFIL */
         .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; letter-spacing: 0.2px; }
         
-        .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
-        .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
-        .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
-        .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
-        .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
-        
-        .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
-        .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
-        .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
+.badge-lvl-stone, .rank-icon-stone { 
+    background: linear-gradient(90deg, #444, #111, #444) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8) !important;
+    animation: shimmerPremium 3s infinite linear !important;
+}
+
+.badge-lvl-bronze, .rank-icon-bronze { 
+    background: linear-gradient(90deg, #92400e, #d97706, #92400e) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 20px rgba(180, 83, 9, 0.6) !important;
+    animation: shimmerPremium 2.5s infinite linear !important;
+}
+
+.badge-lvl-silver, .rank-icon-silver { 
+    background: linear-gradient(90deg, #94a3b8, #f1f5f9, #94a3b8) !important; 
+    background-size: 200% 100% !important;
+    color: #0f172a !important; 
+    border: none !important; 
+    box-shadow: 0 0 20px rgba(148, 163, 184, 0.6) !important;
+    animation: shimmerPremium 2.5s infinite linear !important;
+}
+
+.badge-lvl-gold, .rank-icon-gold { 
+    background: linear-gradient(90deg, #b45309, #fbbf24, #b45309) !important; 
+    background-size: 200% 100% !important;
+    color: #451a03 !important; 
+    border: none !important; 
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.7) !important;
+    animation: shimmerPremium 2s infinite linear, pulseGlowGold 1.5s infinite alternate !important;
+}
+
+.badge-lvl-emerald, .rank-icon-emerald { 
+    background: linear-gradient(90deg, #064e3b, #10b981, #064e3b) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.7) !important;
+    animation: shimmerPremium 2s infinite linear, emeraldPulse 1.5s infinite alternate !important;
+}
+
+.badge-lvl-diamond, .rank-icon-diamond { 
+    background: linear-gradient(90deg, #1d4ed8, #60a5fa, #1d4ed8) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.8) !important;
+    animation: shimmerPremium 2s infinite linear, pulseGlowCyan 1.5s infinite alternate !important;
+}
+
+.badge-lvl-master, .rank-icon-master { 
+    background: linear-gradient(90deg, #7e22ce, #e9d5ff, #7e22ce) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.8) !important;
+    animation: shimmerPremium 1.5s infinite linear, masterGlow 2s infinite alternate !important;
+}
+
+.badge-lvl-mythic, .rank-icon-mythic { 
+    background: linear-gradient(90deg, #7f1d1d, #ef4444, #f97316) !important; 
+    background-size: 200% 100% !important;
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.8) !important;
+    animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important;
+}
         
         @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
         @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
