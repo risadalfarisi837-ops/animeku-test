@@ -326,33 +326,56 @@ body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-famil
     opacity: 0.8;
 }
 
-/* === TAMPILAN WIDE BUBBLE (LEBAR, LEGA, TAPI TETAP MEMBULAT) === */
+/* ==========================================
+   TAMPILAN KARTU UNIVERSAL (KONSISTEN)
+   ========================================== */
 
+/* 1. Menyeragamkan semua kartu (Jadwal, History, Profil, Komentar, Episode) */
 .sched-card, 
+.timeline-card, 
 .profile-list-item, 
-.profile-comment-box {
-    margin-left: 8px !important;
-    margin-right: 8px !important;
-    border-radius: 16px !important; 
-    width: calc(100% - 16px) !important; 
+.comment-item,
+div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"], /* Target khusus kotak komentar */
+div[style*="justify-content:space-between; align-items:center; padding:15px;"] /* Target khusus kotak daftar episode */ {
+    background: #1c1c1e !important;
+    border: 1px solid #2c2c2e !important;
+    border-radius: 16px !important; /* Lengkungan seragam semua */
+    margin-left: 12px !important;   /* Jarak kiri seragam */
+    margin-right: 12px !important;  /* Jarak kanan seragam */
+    width: calc(100% - 24px) !important; /* Lebar otomatis pas dengan layar */
     box-sizing: border-box !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important; /* Efek bayangan halus merata */
+    transition: transform 0.2s ease, border-color 0.2s ease !important;
 }
 
-div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
-    margin-left: 8px !important;
-    margin-right: 8px !important;
-    border-radius: 16px !important; 
-    width: calc(100% - 16px) !important;
-    box-sizing: border-box !important;
+/* 2. Efek saat ditekan (berlaku untuk semua kartu) */
+.sched-card:active, 
+.timeline-card:active, 
+.profile-list-item:active,
+div[style*="justify-content:space-between; align-items:center; padding:15px;"]:active {
+    transform: scale(0.98) !important;
+    border-color: #3b82f6 !important;
 }
 
+/* 3. Menyeragamkan gambar di dalam kartu */
+.sched-img, 
+.timeline-img, 
+.pli-img {
+    border-radius: 10px !important; /* Gambar di dalam kotak juga punya lengkungan seragam */
+    border: 1px solid #333 !important;
+}
+
+/* 4. Fix khusus agar list episode di halaman detail tidak nabrak layar */
 #episode-list-detail-container {
-    margin-left: -4px !important; 
-    margin-right: -4px !important;
-    width: calc(100% + 8px) !important;
+    margin-left: -2px !important; 
+    margin-right: -2px !important;
+    width: calc(100% + 4px) !important;
 }
 
-div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
-    border-radius: 16px !important; 
-    border: 1px solid #2c2c2e !important; 
+/* 5. Menyeragamkan sudut poster di halaman Home & Subscribe */
+.scroll-card-img, 
+.recent-img-box, 
+.fav-card-img {
+    border-radius: 12px !important;
+    border: 1px solid #2c2c2e !important;
 }
