@@ -2145,41 +2145,6 @@ document.onkeydown = function(e) {
 // ==========================================
 // FITUR GOD MODE (KHUSUS DEVELOPER)
 // ==========================================
-window.injectDevModal = function() {
-    if(document.getElementById('dev-modal-injected')) return;
-    const div = document.createElement('div'); div.id = 'dev-modal-injected';
-    div.innerHTML = `
-        <div id="devModalOverlay" class="modal-overlay" onclick="closeDevModal()" style="display:none; z-index:9999998;"></div>
-        <div id="devModal" class="bottom-sheet" style="z-index:9999999; padding:25px 20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-                <h3 style="color:#ef4444; margin:0; font-size:18px;">🛠️ Panel God Mode</h3>
-                <button onclick="closeDevModal()" style="background:transparent; border:none; color:#fff; font-size:16px; cursor:pointer;">✖</button>
-            </div>
-            
-            <p style="font-size:12px; color:#888; margin-bottom:15px;">Edit data user lewat UID (Bisa pakai 6 digit awal saja).</p>
-            
-            <input type="text" id="dev-uid" placeholder="Target UID (Contoh: #A1B2C3)" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #ef4444; border-radius:12px; box-sizing:border-box;">
-            
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <input type="number" id="dev-koin" placeholder="Set Koin" style="flex:1; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
-                <input type="number" id="dev-level" placeholder="Set Level" style="flex:1; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
-            </div>
-            
-            <input type="number" id="dev-exp" placeholder="Set EXP" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
-            
-            <select id="dev-role" style="width:100%; padding:12px; margin-bottom:20px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box; outline:none;">
-                <option value="">-- Jangan Ubah Role --</option>
-                <option value="Member">Member (Wibu Biasa)</option>
-                <option value="Wibu Premium">Wibu Premium</option>
-                <option value="Developer">Developer</option>
-            </select>
-            
-            <button onclick="executeGodMode()" style="width:100%; padding:14px; background:linear-gradient(90deg, #dc2626, #7f1d1d); color:#fff; border:none; border-radius:16px; font-weight:900; font-size:14px; cursor:pointer; box-shadow:0 5px 15px rgba(220, 38, 38, 0.4);">⚡ EKSEKUSI</button>
-        </div>
-    `;
-    document.body.appendChild(div);
-};
-
 window.openDevModal = function(targetUid = '') {
     window.injectDevModal();
     if(targetUid) document.getElementById('dev-uid').value = targetUid;
@@ -2210,9 +2175,29 @@ window.executeGodMode = function() {
     let role = document.getElementById('dev-role').value;
 
     if(koin !== "") updates.koin = parseInt(koin);
-    if(exp !== "") updates.exp = parseInt(exp);
-    if(lvl !== "") updates.level = parseInt(lvl);
     if(role !== "") updates.role = role;
+
+    // === LOGIKA BARU: AUTO SINKRON LEVEL & EXP ===
+    // Kalau admin ngubah Level
+    if(lvl !== "") {
+        let parsedLvl = parseInt(lvl);
+        updates.level = parsedLvl;
+        // Kalau EXP dikosongin, otomatis hitungin EXP biar nggak ngereset/0
+        if(exp === "") {
+            updates.exp = (parsedLvl - 1) * 200; 
+        }
+    }
+    
+    // Kalau admin ngubah EXP spesifik
+    if(exp !== "") {
+        let parsedExp = parseInt(exp);
+        updates.exp = parsedExp;
+        // Kalau Level dikosongin, otomatis sesuaikan levelnya
+        if(lvl === "") {
+            updates.level = Math.floor(parsedExp / 200) + 1;
+        }
+    }
+    // ===============================================
 
     if(Object.keys(updates).length === 0) return window.showToast('Isi minimal 1 data yang mau diubah!', 'error');
 
