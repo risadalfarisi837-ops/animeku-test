@@ -147,7 +147,9 @@ const RANK_TIERS = [
 function getRankInfo(level) { return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0]; }
 
 function updateDevUI() {
-    const container = document.getElementById('auth-check-container'); if(!container) return;
+    const container = document.getElementById('auth-check-container'); 
+    if(!container) return;
+
     if(!currentUser) {
         container.innerHTML = `<div style="text-align:center; padding: 40px 20px;"><div style="width: 100px; height: 100px; border-radius: 50%; background: #1a1a1a; border: 3px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div><h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2><p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p><button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg> Lanjutkan dengan Google</button></div>`;
     } else {
@@ -155,20 +157,21 @@ function updateDevUI() {
         db.ref('users/' + currentUser.uid).on('value', async snap => {
             try {
                 let data = snap.val(); 
-                if(!data) { data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0, joined: Date.now() }; await db.ref('users/' + currentUser.uid).set(data); }
-                let historyData = []; try { historyData = await getHistory(); } catch(e) {}
+                if(!data) { 
+                    data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0, joined: Date.now() }; 
+                    await db.ref('users/' + currentUser.uid).set(data); 
+                }
                 
+                let historyData = []; try { historyData = await getHistory(); } catch(e) {}
                 const role = data.role || 'Member'; 
                 const level = data.level || 1; 
                 const exp = data.exp || 0; 
                 const creationDate = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime) : new Date();
                 const diffMonths = (new Date().getFullYear() - creationDate.getFullYear()) * 12 + (new Date().getMonth() - creationDate.getMonth());
                 const joinMonths = Math.max(1, diffMonths);
-
                 let totalMenit = Math.floor(exp * 1.2);
                 if (totalMenit === 0) totalMenit = (historyData.length || 0) * 24;
                 const jamNonton = Math.floor(totalMenit / 60);
-                
                 const userName = data.nama || 'User Animeku'; 
                 const userFoto = data.foto || 'https://placehold.co/100'; 
                 const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
@@ -176,110 +179,64 @@ function updateDevUI() {
                 let roleBadgeClass = 'badge-member'; let roleName = role;
                 if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
                 else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
-                else if(role === 'Member') { roleName = 'Wibu Biasa'; }
                 
-                const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+                const rankInfo = getRankInfo(level); 
+                let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
+                let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
-                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); let randProgress = Math.floor(Math.random() * 80 + 20);
+                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); 
+                    let randProgress = Math.floor(Math.random() * 80 + 20);
                     return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover; display:block;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
-
-                let userCommentsHtml = '<div style="height:30px; display:flex; align-items:center; justify-content:center;"><div class="spinner" style="width:20px; height:20px;"></div></div>'; let totalKomentar = 0;
-                db.ref('comments').once('value').then(commentsSnap => {
-                    let allUserComments = [];
-                    commentsSnap.forEach(epSnap => { epSnap.forEach(commentSnap => { let cData = commentSnap.val(); if(cData.uid === currentUser.uid) { allUserComments.push({ id: commentSnap.key, epID: epSnap.key, ...cData }); } }); });
-                    totalKomentar = allUserComments.length; document.getElementById('stat-komentar-val').innerText = totalKomentar;
-                    if(allUserComments.length === 0) { document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Kamu belum pernah berkomentar.</p>'; } else {
-                        allUserComments.sort((a, b) => b.waktu - a.waktu);
-                        let commentsHtml = allUserComments.map(c => {
-                            let d = new Date(c.waktu || Date.now()); let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-                            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; let aImage = c.animeImage || 'https://placehold.co/100'; let aEp = c.animeEp || 'Episode ?';
-                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
-                                                        return `<div style="margin-bottom: 15px; padding: 15px; margin-left: 15px; margin-right: 15px; background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 12px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover; display:block;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Reply</div></div>`;
-                        }).join('');
-                        document.getElementById('ptab-comments').innerHTML = commentsHtml;
-                    }
-                }).catch(() => { document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#ef4444; font-size:13px; margin-top:30px;">Gagal memuat riwayat komentar.</p>'; });
 
                 let activeBorderId = data.activeBorder || '';
                 let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
                 let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
-                
                 let userKoin = data.koin || 0; 
 
-                // FIX ANTI ERROR KLIK:
-                // Menggunakan elemen button dan mengunci aksi sentuhan (pointer-events) agar responsif di HP
-                container.innerHTML = `
-                    <div style="position: relative; width: 100%; z-index: 1;">
-                        
-                        <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 9999; outline: none; user-select: none; -webkit-tap-highlight-color: transparent;" title="Pencet untuk buka Border Shop">
-                            ${userKoin} Koin
-                        </button>
-                        
-                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center; position: relative; z-index: 50;">
-                            <div class="profile-avatar-container" onclick="window.openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px; z-index: 100; user-select: none; -webkit-tap-highlight-color: transparent;" title="Pencet untuk buka Border Shop">
-                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; position: relative; z-index: 2; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">
-                                ${decoHtml}
-                            </div>
-                            <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer; transition:0.2s; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;" title="Klik untuk ganti nama">${userName}</div>
-                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
-                                <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
-                                <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
-                                <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
-                            </div>
-                        </div>
-
-                        <div class="profile-stats" style="position: relative; z-index: 10;">
-                            <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
-                            <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
-                            <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
-                        </div>
-                        <div class="profile-tabs" style="position: relative; z-index: 10;"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
-                        <div id="ptab-all" class="ptab-content" style="position: relative; z-index: 10;">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px; position: relative; z-index: 10;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none; position: relative; z-index: 10;">${historyHtml}</div>
-                                       let userKoin = data.koin || 0; 
-
-                // === TAMBAHAN TOMBOL GOD MODE ===
+                // Tombol Dev Panel
                 let devPanelHtml = '';
                 if (role === 'Developer') {
                     devPanelHtml = `<button onclick="openDevModal('${shortUid}')" style="margin: 0 20px 10px 20px; width:calc(100% - 40px); background:linear-gradient(90deg, #dc2626, #7f1d1d); border:1px solid #ef4444; color:#fff; padding:12px; border-radius:12px; font-weight:900; font-size:14px; cursor:pointer; position: relative; z-index: 50; box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);">⚡ Buka Panel God Mode</button>`;
                 }
 
-                // FIX ANTI ERROR KLIK:
                 container.innerHTML = `
                     <div style="position: relative; width: 100%; z-index: 1;">
-                        
-                        <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 9999; outline: none; user-select: none; -webkit-tap-highlight-color: transparent;" title="Pencet untuk buka Border Shop">
+                        <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; z-index: 9999;">
                             ${userKoin} Koin
                         </button>
-                        
                         <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center; position: relative; z-index: 50;">
-                            <div class="profile-avatar-container" onclick="window.openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px; z-index: 100; user-select: none; -webkit-tap-highlight-color: transparent;">
-                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; position: relative; z-index: 2; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">
+                            <div class="profile-avatar-container" onclick="window.openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px; z-index: 100;">
+                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
                                 ${decoHtml}
                             </div>
-                            <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer; transition:0.2s; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;" title="Klik untuk ganti nama">${userName}</div>
+                            <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer;">${userName}</div>
                             <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
                                 <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
                                 <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
                                 <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
                             </div>
                         </div>
-
-                        <div class="profile-stats" style="position: relative; z-index: 10;">
+                        <div class="profile-stats">
                             <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
                             <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
                             <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
                         </div>
-                        <div class="profile-tabs" style="position: relative; z-index: 10;"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
-                        <div id="ptab-all" class="ptab-content" style="position: relative; z-index: 10;">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px; position: relative; z-index: 10;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none; position: relative; z-index: 10;">${historyHtml}</div>
+                        <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
+                        <div id="ptab-all" class="ptab-content">${historyHtml}</div>
+                        <div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;"></div>
+                        <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
                         
                         ${devPanelHtml}
 
-                        <button onclick="openLogoutModal()" style="margin: 0 20px 20px 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; position: relative; z-index: 50;">Keluar Akun</button>
+                        <button onclick="openLogoutModal()" style="margin: 0 20px 20px 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
                     </div>
                 `;
-            } catch(errorProfile) { console.error(errorProfile); container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`; }
+            } catch(errorProfile) { 
+                console.error(errorProfile); 
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil.</div>`; 
+            }
         });
     }
 }
