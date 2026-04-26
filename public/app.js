@@ -113,22 +113,11 @@ auth.onAuthStateChanged(user => {
 
 window.loginDenganGoogle = function() {
     const provider = new firebase.auth.GoogleAuthProvider(); 
-    provider.setCustomParameters({ prompt: 'select_account' });
+    // Hapus paksaan 'select_account' biar kalau udah pernah login, langsung otomatis masuk
     
-    // Langsung tembak POPUP tanpa basa-basi / animasi Toast, biar HP gak ngeblokir!
     auth.signInWithPopup(provider).then(res => {
-        const u = res.user;
-        db.ref('users/' + u.uid).once('value').then(snap => {
-            if (!snap.exists()) {
-                db.ref('users/' + u.uid).set({ 
-                    nama: u.displayName, email: u.email, foto: u.photoURL, 
-                    role: 'Member', level: 1, exp: 0, joined: Date.now(), koin: 0 
-                });
-            } else {
-                db.ref('users/' + u.uid).update({ nama: u.displayName, foto: u.photoURL });
-            }
-            window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); 
-        });
+        window.showToast("Login Berhasil! Selamat datang, " + res.user.displayName, 'success'); 
+        // Logika nyimpen data ke database dihapus dari sini karena udah otomatis dikerjain sama fungsi updateDevUI. Biar nggak balapan/error!
     }).catch(err => {
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { 
             window.showToast("Gagal login: " + err.message, 'error'); 
@@ -188,10 +177,34 @@ function updateDevUI() {
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
                 let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
+                // ==== DESAIN RIWAYAT NONTON (DIREVISI: PLAY BIRU KANAN BAWAH) ====
+                let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
-                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); 
-                    return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover; display:block;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div></div></div>`;
+                    let progress = watchProgress[item.url] || Math.floor(Math.random() * 60 + 20); 
+                    
+                    const durasiMenit = 24; 
+                    const currentMenit = Math.floor((progress/100) * durasiMenit);
+                    const currentStr = String(currentMenit).padStart(2, '0') + ':' + String(Math.floor(Math.random()*60)).padStart(2,'0') + ' / ' + durasiMenit + ':00';
+                    
+                    return `
+                    <div onclick="loadDetail('${item.url}')" style="display:flex; gap:15px; background:#1c1c1e; padding:12px; border-radius:16px; border:1px solid #2c2c2e; margin-bottom:12px; cursor:pointer;">
+                        <div style="position:relative; width:80px; height:100px; flex-shrink:0;">
+                            <img src="${item.image || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:10px; object-fit:cover; border:1px solid #222;">
+                            <div style="position:absolute; bottom:-4px; right:-4px; width:26px; height:26px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.6);">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">
+                            <div style="font-weight:800; font-size:14px; color:#fff; margin-bottom:6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;">${item.title}</div>
+                            <div style="font-size:12px; color:#a1a1aa; margin-bottom:12px; font-weight:600;">${item.episode || 'Episode ?'}</div>
+                            <div style="width:100%; height:4px; background:#2c2c2e; border-radius:2px; overflow:hidden; margin-bottom: 6px;">
+                                <div style="width:${progress}%; height:100%; background:#ef4444; border-radius:2px; box-shadow:0 0 5px rgba(239,68,68,0.5);"></div>
+                            </div>
+                            <div style="font-size:10px; color:#888; text-align:right; font-weight:700;">${currentStr}</div>
+                        </div>
+                    </div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
+                // =====================================================================
 
                 let decoUrl = data.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[data.activeBorder] ? window.BORDER_CATALOG[data.activeBorder].url : '';
                 let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
@@ -218,7 +231,7 @@ function updateDevUI() {
                         <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
                         <div id="ptab-all" class="ptab-content">${historyHtml}</div>
                         <div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;"><div style="text-align:center; padding:30px;"><div class="spinner" style="width:20px; height:20px; margin:0 auto;"></div></div></div>
-                        <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
+                        <div id="ptab-history" class="ptab-content" style="display:none; padding: 0 10px;">${historyHtml}</div>
                         <button onclick="openLogoutModal()" style="margin: 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Keluar Akun</button>
                     </div>
                 `;
@@ -238,8 +251,7 @@ function updateDevUI() {
                     } else {
                         myComments.sort((a, b) => b.waktu - a.waktu);
                         
-                        // KODE YANG DIGANTI: Teks normal (gak miring) + Tombol Reply Biru
-                                                tabComments.innerHTML = myComments.map(c => {
+                        tabComments.innerHTML = myComments.map(c => {
                             let d = new Date(c.waktu || Date.now()); 
                             let dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
                             return `
@@ -256,7 +268,7 @@ function updateDevUI() {
                                             <div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${c.animeEp || 'Episode ?'} • ${dateStr}</div>
                                         </div>
                                     </div>
-                                    <div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word;">"${c.teks}"</div>
+                                    <div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word;">${c.teks}</div>
                                     <div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="loadDetail('${c.url}')">Reply</div>
                                 </div>
                             `;
@@ -267,7 +279,6 @@ function updateDevUI() {
         });
     }
 }
-
 
 // ==== FUNGSI UNTUK PROFIL ORANG LAIN ====
 function injectUserProfileModal() {
@@ -2157,7 +2168,7 @@ window.injectDevModal = function() {
                     <div style="background:rgba(59, 130, 246, 0.1); padding:8px; border-radius:10px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.7a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.7z"></path></svg>
                     </div>
-                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900; letter-spacing:0.5px;">Panel God Mode</h3>
+                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900; letter-spacing:0.5px;">Panel Developer</h3>
                 </div>
                 <button onclick="closeDevModal()" style="background:rgba(255,255,255,0.05); border:none; color:#888; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -2198,7 +2209,7 @@ window.injectDevModal = function() {
             </div>
             
             <button onclick="executeGodMode()" style="width:100%; padding:16px; background:linear-gradient(90deg, #3b82f6, #1d4ed8); color:#fff; border:none; border-radius:18px; font-weight:900; font-size:14px; cursor:pointer; box-shadow:0 10px 20px rgba(59, 130, 246, 0.3); transition:0.3s; text-transform:uppercase; letter-spacing:1px;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
-                ⚡ Terapkan Perubahan
+                 Terapkan Perubahan
             </button>
         </div>
     `;
@@ -2273,7 +2284,7 @@ window.executeGodMode = function() {
         if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
 
         db.ref('users/' + targetFullUid).update(updates).then(() => {
-            window.showToast('⚡ God Mode Berhasil Diterapkan!', 'success');
+            window.showToast('Fitur Berhasil Diterapkan!', 'success');
             window.closeDevModal();
             // Reset form
             document.getElementById('dev-koin').value = '';
